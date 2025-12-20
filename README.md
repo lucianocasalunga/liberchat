@@ -1,223 +1,245 @@
+<div align="center">
+
 # 💬 LiberChat
 
-> Comunicador Nostr descentralizado com Lightning Network e NFTs
+**Cliente de Chat Nostr Descentralizado**
+*Conversas privadas, seguras e livres*
 
-![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![Status](https://img.shields.io/badge/status-active-success?style=for-the-badge)](https://chat.libernet.app)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Nostr](https://img.shields.io/badge/nostr-100%25-8B5CF6?style=for-the-badge&logo=nostr&logoColor=white)](https://nostr.com)
+[![PWA](https://img.shields.io/badge/PWA-enabled-5A0FC8?style=for-the-badge)](https://chat.libernet.app)
 
-## 🚀 Sobre
+[🌐 Demo ao Vivo](https://chat.libernet.app) • [📖 Docs](https://github.com/lucianocasalunga/liberchat/wiki) • [🐛 Issues](https://github.com/lucianocasalunga/liberchat/issues)
 
-LiberChat é um aplicativo de mensagens descentralizado construído sobre o protocolo Nostr, oferecendo:
-
-- ✅ Mensagens privadas criptografadas (NIP-04)
-- ⚡ Pagamentos Lightning integrados
-- 🎁 Emblemas e NFTs como presentes digitais
-- 🔐 Controle total das suas chaves
-- 🌐 100% open source e auditável
-
-## 🆕 Últimas Atualizações (2025-12-09)
-
-### Lista de Chats Implementada ✅
-- Interface estilo WhatsApp/Telegram
-- Conversas ordenadas por última mensagem
-- Preview da última mensagem (até 50 caracteres)
-- Indicadores de mensagens não lidas
-- Timestamp relativo (agora, 5m, 2h, 3d, DD/MM)
-- Badge de verificação NIP-05
-- Busca em tempo real por nome, npub ou conteúdo
-
-### Melhorias de Interface Mobile
-- Bottom navigation fixo com 52px
-- Header compacto e otimizado
-- Layout edge-to-edge (sem margens desnecessárias)
-- Ícones redimensionados para melhor usabilidade
-- Safe-area-inset para iOS (notch e home indicator)
-
-### Sistema de Configurações
-- Perfil com NIP-05 no topo
-- 11 seções organizadas: Geral, Aparência, Relays, Tradução, Carteira, etc.
-- Design list-style com ícones Lucide
-- Footer com versão e branding
-
-Veja o [CHANGELOG.md](CHANGELOG.md) para histórico completo.
-
-## 📋 Requisitos
-
-- Docker & Docker Compose
-- Python 3.12+
-- PostgreSQL 16
-- Redis 7
-
-## 🛠️ Instalação
-
-```bash
-# Clone o repositório
-cd /mnt/projetos/liberchat
-
-# Configure as variáveis de ambiente
-cp .env.example .env
-nano .env  # Edite com suas credenciais
-
-# Suba os containers
-docker-compose up -d
-
-# Verifique os logs
-docker-compose logs -f liberchat
-```
-
-## 🌐 Acessar
-
-- **Desenvolvimento:** http://localhost:5052
-- **Produção:** https://chat.libernet.app
-
-## 📁 Estrutura do Projeto
-
-```
-liberchat/
-├── app.py                  # Backend Flask
-├── requirements.txt        # Dependências Python
-├── docker-compose.yml      # Orquestração Docker
-├── Dockerfile             # Imagem Docker
-├── .env.example           # Exemplo de variáveis
-├── static/
-│   ├── css/               # Estilos
-│   ├── js/                # Scripts
-│   ├── icons/             # Ícones SVG (symlink)
-│   ├── images/            # Imagens
-│   ├── manifest.json      # PWA Manifest
-│   └── sw.js              # Service Worker
-├── templates/
-│   ├── base.html          # Template base
-│   ├── index.html         # Login
-│   ├── chat.html          # Interface de chat
-│   ├── contacts.html      # Lista de contatos
-│   └── settings.html      # Configurações
-└── database/
-    └── schema.sql         # Schema PostgreSQL
-```
-
-## 🔧 Tecnologias
-
-### Backend
-- **Flask** - Framework web
-- **PostgreSQL** - Banco de dados
-- **Redis** - Cache e sessões
-- **Gunicorn** - WSGI server
-
-### Frontend
-- **Tailwind CSS** - Estilização
-- **Vanilla JS** - Interatividade
-- **PWA** - Progressive Web App
-
-### Nostr
-- **pynostr** - Cliente Python para Nostr
-- **NIPs:** 01, 04, 05, 07, 19, 57, 58, 98
-
-### Lightning
-- **LNbits** - Pagamentos Lightning
-- **NWC** - Nostr Wallet Connect
-
-## 📱 PWA (Progressive Web App)
-
-LiberChat é um PWA completo:
-
-- ✅ Instalável no celular
-- ✅ Funciona offline
-- ✅ Notificações push
-- ✅ Ícone na tela inicial
-
-## 🎨 Design
-
-**Paleta de Cores:**
-- Preto (#000000) e Branco (#FFFFFF)
-- Variantes de cinza
-- Amarelo (#FFC107) para destaques
-
-**Temas:**
-- Claro (padrão)
-- Escuro
-- Automático (segue sistema)
-
-## 🔐 Segurança
-
-- ✅ Mensagens criptografadas end-to-end (NIP-04)
-- ✅ Chaves privadas nunca saem do dispositivo
-- ✅ HTTPS obrigatório
-- ✅ Rate limiting
-- ✅ Proteção XSS e SQL Injection
-- ✅ CSP (Content Security Policy)
-
-## 📊 Roadmap
-
-### Fase 1 - Core (35% completo)
-- [x] Estrutura inicial do projeto
-- [x] Autenticação Nostr (NIP-07 + nsec)
-- [x] Navegação com tabs (Chats, Grupos, Contatos, Configurações)
-- [x] Lista de chats ordenada por última mensagem
-- [x] Sistema de grupos (criar, listar, gerenciar)
-- [x] Interface de configurações
-- [x] Tema claro/escuro/automático
-- [x] PWA básico (instalável)
-- [ ] Visualização de conversa individual
-- [ ] Envio/Recebimento de mensagens (NIP-04)
-- [ ] Lista de contatos funcional
-- [ ] Notificações em tempo real
-
-### Fase 2 - Social
-- [x] Criar e gerenciar grupos
-- [ ] Chat em grupo funcional
-- [ ] Upload de mídia (integração LiberMedia)
-- [ ] Perfis de usuário completos
-- [ ] NIP-05 @libernet.app (backend pronto)
-- [ ] Busca global de usuários
-
-### Fase 3 - Lightning
-- [ ] Integração NWC (Nostr Wallet Connect)
-- [ ] Enviar/receber satoshis
-- [ ] Emblemas pagos
-- [ ] Zaps (NIP-57)
-- [ ] Carteira integrada
-
-### Fase 4 - Avançado
-- [ ] Sistema de NFTs (NIP-58)
-- [ ] Chamadas de voz/vídeo
-- [ ] Stories (NIP-71)
-- [ ] Marketplace
-- [ ] Aplicativo nativo (iOS/Android)
-
-## 🤝 Integrações
-
-- **LiberMedia** - Upload de mídia em chats
-- **Sofia** - Chat com IA integrado
-- **relay.libernet.app** - Relay Nostr principal
-- **NIP-05** - Verificação @libernet.app
-
-## 👨‍💻 Desenvolvimento
-
-```bash
-# Instalar dependências localmente
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Rodar em modo desenvolvimento
-export FLASK_ENV=development
-export DEBUG=True
-python app.py
-```
-
-## 📝 Licença
-
-MIT License - Veja LICENSE para detalhes
-
-## 📞 Contato
-
-- **Desenvolvedor:** Barak (Luciano)
-- **Email:** luciano@libernet.app
-- **Nostr:** luciano.barak@libernet.app
-- **Site:** https://libernet.app
+</div>
 
 ---
 
-**🤖 Desenvolvido com Claude Code**
-**⚡ Powered by Nostr & Lightning**
+## 🌟 Visão Geral
+
+**LiberChat** é um cliente de chat nativo do Nostr que oferece uma experiência moderna e intuitiva para comunicação descentralizada.
+
+### Por Que LiberChat?
+
+- 🔐 **Privacidade Total**: Suas conversas, suas chaves, seu controle
+- 💬 **DMs Encriptadas**: NIP-04 para mensagens privadas seguras
+- 👥 **Grupos Públicos**: Canais comunitários abertos
+- ⚡ **Lightning Ready**: Integração nativa com pagamentos
+- 📱 **PWA**: Instale como app no celular
+- 🌍 **Multilíngue**: pt-BR, en-US, es-ES
+
+---
+
+## ✨ Funcionalidades
+
+<table>
+<tr>
+<td width="50%">
+
+### 💬 Chat Completo
+
+- DMs encriptadas (NIP-04)
+- Grupos públicos
+- Canais comunitários
+- Reactions e emojis
+- Upload de mídia
+- Mensagens em tempo real
+
+</td>
+<td width="50%">
+
+### 🔑 Autenticação Nostr
+
+- Login NIP-07 (extensões)
+- Login com nsec
+- Gestão de perfil
+- Avatar e metadata
+- Verificação NIP-05
+- Multi-relay support
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📱 Interface Moderna
+
+- Design responsivo
+- Dark/Light mode
+- Temas customizáveis
+- Wallpapers personalizados
+- 100+ ícones SVG
+- PWA instalável
+
+</td>
+<td width="50%">
+
+### ⚡ Recursos Avançados
+
+- Notificações push
+- Busca de mensagens
+- Filtros de conteúdo
+- Backup de conversas
+- Export/Import data
+- Gestão de relays
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🛠️ Stack Tecnológico
+
+### Backend
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=flat&logo=flask&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+
+- Python 3.12 + Flask
+- PostgreSQL (mensagens e usuários)
+- nostr-sdk (Python bindings)
+- WebSockets (real-time)
+- Docker + Compose
+
+### Frontend
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=flat&logo=pwa&logoColor=white)
+
+- Vanilla JavaScript
+- Modern CSS (Grid/Flexbox)
+- Service Workers
+- i18n (3 idiomas)
+- Responsive design
+
+---
+
+## 🚀 Instalação
+
+### Usando Docker (Recomendado)
+
+```bash
+# Clone o repositório
+git clone https://github.com/lucianocasalunga/liberchat.git
+cd liberchat
+
+# Configure o ambiente
+cp .env.example .env
+nano .env
+
+# Inicie com Docker
+docker-compose up -d
+
+# Acesse
+open http://localhost:5052
+```
+
+### Instalação Manual
+
+```bash
+# Clone e entre
+git clone https://github.com/lucianocasalunga/liberchat.git
+cd liberchat
+
+# Crie ambiente virtual
+python3 -m venv venv
+source venv/bin/activate
+
+# Instale dependências
+pip install -r requirements.txt
+
+# Configure
+cp .env.example .env
+nano .env
+
+# Execute
+python app.py
+```
+
+---
+
+## 📚 NIPs Implementados
+
+| NIP | Descrição | Status |
+|-----|-----------|--------|
+| [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) | Protocolo base | ✅ |
+| [NIP-04](https://github.com/nostr-protocol/nips/blob/master/04.md) | Mensagens encriptadas | ✅ |
+| [NIP-05](https://github.com/nostr-protocol/nips/blob/master/05.md) | Verificação de identidade | ✅ |
+| [NIP-07](https://github.com/nostr-protocol/nips/blob/master/07.md) | Extensões de navegador | ✅ |
+| [NIP-10](https://github.com/nostr-protocol/nips/blob/master/10.md) | Marcação de eventos | ✅ |
+| [NIP-25](https://github.com/nostr-protocol/nips/blob/master/25.md) | Reactions | ✅ |
+| [NIP-28](https://github.com/nostr-protocol/nips/blob/master/28.md) | Canais públicos | 🚧 |
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Concluído (2024-2025)
+- [x] Sistema de chat completo
+- [x] DMs encriptadas (NIP-04)
+- [x] Interface PWA responsiva
+- [x] Sistema de temas e wallpapers
+- [x] i18n (3 idiomas)
+- [x] Gestão de contatos
+
+### 🚧 Em Desenvolvimento (Q1 2025)
+- [ ] Grupos privados (NIP-28)
+- [ ] Calls de voz/vídeo
+- [ ] Stickers customizados
+- [ ] Bots integrados
+- [ ] Marketplace de temas
+
+### 🔮 Futuro (Q2-Q3 2025)
+- [ ] Mobile app nativo
+- [ ] Desktop app (Electron)
+- [ ] E2E encryption extra
+- [ ] Stories (NIP-XX)
+- [ ] Communities (NIP-XX)
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas!
+
+```bash
+# Fork o projeto
+git checkout -b feature/MinhaFeature
+git commit -m 'feat: Adiciona MinhaFeature'
+git push origin feature/MinhaFeature
+# Abra um Pull Request
+```
+
+---
+
+## 📄 Licença
+
+MIT License - Copyright (c) 2025 Luciano Casalunga
+
+Veja [LICENSE](LICENSE) para detalhes.
+
+---
+
+## 👤 Autor
+
+**Luciano Casalunga** (Barak)
+
+- 🌐 [libernet.app](https://libernet.app)
+- 💜 Nostr: [npub1nvcezhw3gze5waxtvrzzls8qzhvqpn087hj0s2jl948zr4egq0jqhm3mrr](https://njump.me/npub1nvcezhw3gze5waxtvrzzls8qzhvqpn087hj0s2jl948zr4egq0jqhm3mrr)
+- 🐦 [@LucianoBarak](https://twitter.com/LucianoBarak)
+
+---
+
+<div align="center">
+
+**LiberChat** - Conversas livres para pessoas livres 💜
+
+*Parte do ecossistema LiberNet*
+
+[![LiberNet](https://img.shields.io/badge/LiberNet-Ecosystem-8B5CF6?style=for-the-badge)](https://libernet.app)
+
+</div>
