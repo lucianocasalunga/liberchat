@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segurança - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="/static/icons/shield.svg" class="w-6 h-6 dark:invert" alt="">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="security.title">Segurança</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+            <!-- Seção: Login Automático -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/fingerprint.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="security.auto_login">Login Automático</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="security.auto_login_subtitle">
+                        Configure como deseja fazer login no LiberChat
+                    </p>
+                </div>
+
+                <div class="p-4 space-y-3">
+                    <!-- Biometria (se disponível) -->
+                    <div id="biometryOption" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/fingerprint.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="security.biometry">Biometria</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    <span id="biometryStatusText" data-i18n="security.biometry_checking">Verificando disponibilidade...</span>
+                                </p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="biometryToggle" class="sr-only peer" disabled>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Salvar no navegador -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/save.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="security.save_session">Salvar no Navegador</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="security.save_session_subtitle">Manter sessão iniciada</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="saveSessionToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400 px-3">
+                        <img src="/static/icons/info.svg" class="w-3.5 h-3.5 dark:invert flex-shrink-0 mt-0.5" alt="">
+                        <span data-i18n="security.save_session_info">Com "Salvar no Navegador" ativado, você não precisará fazer login toda vez que abrir o app.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Chaves Nostr -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/key.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="security.keys">Suas Chaves Nostr</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="security.keys_subtitle">
+                        Sua identidade descentralizada
+                    </p>
+                </div>
+
+                <div class="p-4 space-y-4">
+                    <!-- Npub (Chave Pública) -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 flex items-center justify-between text-gray-900 dark:text-gray-200">
+                            <span data-i18n="security.public_key">Chave Pública (npub)</span>
+                            <span class="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full" data-i18n="security.public_key_safe">
+                                ✓ Pode compartilhar
+                            </span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="npubField"
+                                value="{{ npub }}"
+                                readonly
+                                class="w-full px-4 py-3 pr-20 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 font-mono text-sm text-gray-900 dark:text-white"
+                            >
+                            <button
+                                onclick="copyNpub()"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-semibold rounded transition-colors"
+                                data-i18n="buttons.copy"
+                            >
+                                Copiar
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="security.public_key_info">
+                            Esta é sua identidade pública. Compartilhe para que outros te encontrem.
+                        </p>
+                    </div>
+
+                    <!-- Nsec (Chave Privada) -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 flex items-center justify-between text-gray-900 dark:text-gray-200">
+                            <span data-i18n="security.private_key">Chave Privada (nsec)</span>
+                            <span class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded-full" data-i18n="security.private_key_danger">
+                                ⚠️ NUNCA compartilhe
+                            </span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="password"
+                                id="nsecField"
+                                value="nsec1••••••••••••••••••••••••••••••••••••••••••••••••••••••"
+                                readonly
+                                class="w-full px-4 py-3 pr-28 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 font-mono text-sm text-gray-900 dark:text-white"
+                            >
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                                <button
+                                    onclick="toggleNsecVisibility()"
+                                    id="toggleNsecBtn"
+                                    class="px-2.5 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors"
+                                    title="Mostrar/Ocultar"
+                                >
+                                    <img id="eyeIcon" src="/static/icons/eye.svg" class="w-4 h-4 dark:invert" alt="">
+                                </button>
+                                <button
+                                    onclick="copyNsec()"
+                                    class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-semibold rounded transition-colors"
+                                    data-i18n="buttons.copy"
+                                >
+                                    Copiar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <p class="text-xs text-red-800 dark:text-red-300 font-medium mb-1" data-i18n="security.private_key_warning_title">
+                                ⚠️ ATENÇÃO - EXTREMAMENTE IMPORTANTE
+                            </p>
+                            <ul class="text-xs text-red-700 dark:text-red-400 space-y-1 list-disc list-inside">
+                                <li data-i18n="security.private_key_warning_1">Sua nsec dá <strong>acesso TOTAL</strong> à sua conta</li>
+                                <li data-i18n="security.private_key_warning_2">Quem tiver sua nsec pode se passar por você</li>
+                                <li data-i18n="security.private_key_warning_3"><strong>NUNCA</strong> compartilhe com ninguém</li>
+                                <li data-i18n="security.private_key_warning_4">Guarde em local seguro (gerenciador de senhas)</li>
+                                <li data-i18n="security.private_key_warning_5">Faça backup físico em papel ou cofre</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Aviso sobre backup -->
+                    <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <div class="flex gap-2">
+                            <img src="/static/icons/alert-triangle.svg" class="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" alt="">
+                            <div class="text-xs text-yellow-800 dark:text-yellow-300">
+                                <p class="font-semibold mb-1" data-i18n="security.backup_warning_title">Faça backup da sua nsec!</p>
+                                <p data-i18n="security.backup_warning_text">Se você perder acesso a este dispositivo SEM ter a nsec salva, <strong>perderá sua identidade Nostr permanentemente</strong>. Não há recuperação de conta.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Dispositivos Conectados -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/smartphone.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="security.devices">Dispositivos Conectados</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="security.devices_subtitle">
+                        Gerencie onde sua conta está ativa
+                    </p>
+                </div>
+
+                <div class="p-4">
+                    <!-- Dispositivo atual -->
+                    <div class="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <img src="/static/icons/smartphone.svg" class="w-6 h-6 text-green-600 dark:invert" alt="">
+                        <div class="flex-1">
+                            <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="security.current_device">Este dispositivo</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400" id="currentDeviceInfo">Navegador atual</p>
+                        </div>
+                        <span class="text-xs text-green-600 dark:text-green-400 font-semibold" data-i18n="security.device_active">Ativo</span>
+                    </div>
+
+                    <!-- Botão de Logout -->
+                    <button
+                        onclick="confirmLogout()"
+                        class="w-full mt-4 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                    >
+                        <img src="/static/icons/log-out.svg" class="w-4 h-4 brightness-0 invert" alt="">
+                        <span data-i18n="security.logout_session">Sair desta Sessão</span>
+                    </button>
+
+                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2" data-i18n="security.logout_info">
+                        Você precisará fazer login novamente
+                    </p>
+                </div>
+            </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+        <!-- Chats -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.chats">Chats</span>
+        </button>
+
+        <!-- Grupos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.groups">Grupos</span>
+        </button>
+
+        <!-- Contatos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.contacts">Contatos</span>
+        </button>
+
+        <!-- Configurações -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.settings">Config</span>
+        </button>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Botões ativos da navegação */
+.tab-btn.active {
+    color: #FFC107;
+}
+
+.tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+
+html.dark .tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+</style>
+
+<script>
+// Verificar disponibilidade de biometria (Web Authentication API)
+async function checkBiometry() {
+    const statusText = document.getElementById('biometryStatusText');
+    const toggle = document.getElementById('biometryToggle');
+    const option = document.getElementById('biometryOption');
+
+    if (!window.PublicKeyCredential) {
+        statusText.textContent = 'Não disponível neste navegador';
+        toggle.disabled = true;
+        option.classList.add('opacity-50');
+        return;
+    }
+
+    try {
+        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+
+        if (available) {
+            statusText.textContent = 'Digital ou facial detectado';
+            toggle.disabled = false;
+            option.classList.remove('opacity-50');
+
+            // Verificar se já está habilitado
+            const enabled = localStorage.getItem('biometry_enabled') === 'true';
+            toggle.checked = enabled;
+        } else {
+            statusText.textContent = 'Não disponível neste dispositivo';
+            toggle.disabled = true;
+            option.classList.add('opacity-50');
+        }
+    } catch (error) {
+        console.error('Erro ao verificar biometria:', error);
+        statusText.textContent = 'Erro ao verificar';
+        toggle.disabled = true;
+        option.classList.add('opacity-50');
+    }
+}
+
+// Toggle biometria
+document.getElementById('biometryToggle')?.addEventListener('change', function() {
+    if (this.checked) {
+        // TODO: Implementar registro de credencial biométrica
+        alert('🔐 Biometria habilitada!\n\nNa próxima vez que abrir o app, você poderá usar digital/facial para fazer login.');
+        localStorage.setItem('biometry_enabled', 'true');
+    } else {
+        localStorage.setItem('biometry_enabled', 'false');
+        alert('Biometria desabilitada.');
+    }
+});
+
+// Toggle salvar no navegador
+document.getElementById('saveSessionToggle')?.addEventListener('change', function() {
+    if (this.checked) {
+        localStorage.setItem('save_session', 'true');
+        alert('✓ Sessão será mantida.\n\nVocê não precisará fazer login toda vez.');
+    } else {
+        localStorage.setItem('save_session', 'false');
+        alert('Sessão NÃO será salva.\n\nVocê precisará fazer login toda vez que abrir o app.');
+    }
+});
+
+// Copiar npub
+function copyNpub() {
+    const npub = document.getElementById('npubField').value;
+    navigator.clipboard.writeText(npub).then(() => {
+        alert('✓ Chave pública (npub) copiada!\n\nVocê pode compartilhar com outros usuários.');
+    });
+}
+
+// Toggle visibilidade nsec
+let nsecVisible = false;
+function toggleNsecVisibility() {
+    const field = document.getElementById('nsecField');
+    const icon = document.getElementById('eyeIcon');
+
+    if (nsecVisible) {
+        // Ocultar
+        field.type = 'password';
+        field.value = 'nsec1••••••••••••••••••••••••••••••••••••••••••••••••••••••';
+        icon.src = '/static/icons/eye.svg';
+        nsecVisible = false;
+    } else {
+        // Mostrar (com confirmação)
+        const confirm = window.confirm('⚠️ ATENÇÃO!\n\nVocê está prestes a REVELAR sua chave privada.\n\nCertifique-se de que NINGUÉM está olhando sua tela.\n\nDeseja continuar?');
+
+        if (confirm) {
+            // TODO: Buscar nsec real do localStorage ou API
+            const nsecPlaceholder = 'nsec1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+            field.type = 'text';
+            field.value = nsecPlaceholder;
+            icon.src = '/static/icons/eye-off.svg';
+            nsecVisible = true;
+
+            // Auto-ocultar após 10 segundos
+            setTimeout(() => {
+                if (nsecVisible) {
+                    toggleNsecVisibility();
+                }
+            }, 10000);
+        }
+    }
+}
+
+// Copiar nsec
+function copyNsec() {
+    const confirm = window.confirm('⚠️ ATENÇÃO CRÍTICA!\n\nVocê está prestes a COPIAR sua chave privada.\n\nNUNCA cole em sites desconhecidos!\nNUNCA envie para outras pessoas!\nNUNCA poste em redes sociais!\n\nDeseja continuar?');
+
+    if (confirm) {
+        // TODO: Pegar nsec real
+        const nsecPlaceholder = 'nsec1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+        navigator.clipboard.writeText(nsecPlaceholder).then(() => {
+            alert('⚠️ Chave privada copiada!\n\nUSE COM EXTREMO CUIDADO!\n\nCole APENAS em local seguro (gerenciador de senhas, backup pessoal).');
+        });
+    }
+}
+
+// Logout
+function confirmLogout() {
+    const confirm = window.confirm('Deseja realmente sair?\n\nVocê precisará fazer login novamente.');
+
+    if (confirm) {
+        // Fazer logout via API
+        fetch('/api/auth/logout', { method: 'POST' })
+            .then(() => {
+                window.location.href = '/';
+            })
+            .catch(() => {
+                window.location.href = '/';
+            });
+    }
+}
+
+// Detectar dispositivo
+function detectDevice() {
+    const info = document.getElementById('currentDeviceInfo');
+    const ua = navigator.userAgent;
+
+    let device = 'Navegador desconhecido';
+
+    if (/Mobile|Android|iPhone|iPad/.test(ua)) {
+        if (/iPhone|iPad/.test(ua)) {
+            device = 'iPhone/iPad - Safari';
+        } else if (/Android/.test(ua)) {
+            device = 'Android';
+        } else {
+            device = 'Dispositivo móvel';
+        }
+    } else {
+        if (/Chrome/.test(ua)) {
+            device = 'Desktop - Chrome';
+        } else if (/Firefox/.test(ua)) {
+            device = 'Desktop - Firefox';
+        } else if (/Safari/.test(ua)) {
+            device = 'Desktop - Safari';
+        } else {
+            device = 'Desktop';
+        }
+    }
+
+    info.textContent = device;
+}
+
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+
+// Aplicar tema inicial
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+
+// Inicializar ao carregar
+document.addEventListener('DOMContentLoaded', () => {
+    checkBiometry();
+    detectDevice();
+
+    // Verificar estado do save session
+    const saveSession = localStorage.getItem('save_session') !== 'false';
+    document.getElementById('saveSessionToggle').checked = saveSession;
+});
+
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    setTimeout(() => window.location.reload(), 500);
+});
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

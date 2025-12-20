@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo -->
+  <rect width="512" height="512" rx="108" fill="#000000"/>
+
+  <!-- Ícone de mensagem/chat -->
+  <path d="M128 144C128 135.163 135.163 128 144 128H368C376.837 128 384 135.163 384 144V304C384 312.837 376.837 320 368 320H224L160 384V320H144C135.163 320 128 312.837 128 304V144Z" fill="#FFC107"/>
+
+  <!-- Detalhes -->
+  <circle cx="200" cy="216" r="16" fill="#000000"/>
+  <circle cx="256" cy="216" r="16" fill="#000000"/>
+  <circle cx="312" cy="216" r="16" fill="#000000"/>
+</svg>

@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações - LiberChat{% endblock %}
+
+{% block content %}
+<div class="h-full w-full bg-gray-50 dark:bg-gray-900 p-4 pb-24 overflow-y-auto">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center mb-6">
+            <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors mr-3">
+                <img src="/static/icons/arrow-left.svg" class="w-6 h-6 dark:invert" alt="Voltar">
+            </button>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white" data-i18n="settings.title">Configurações</h1>
+        </div>
+
+        <!-- Perfil do Usuário -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white" data-i18n="profile.title">Seu Perfil</h2>
+
+            <div class="flex items-start space-x-4">
+                <!-- Avatar -->
+                <div class="flex-shrink-0">
+                    <img id="userAvatar"
+                         src="/static/img/avatar-default.png"
+                         class="w-24 h-24 rounded-full border-4 border-yellow-500 object-cover"
+                         alt="Avatar"
+                         onerror="this.src='/static/img/avatar-default.png'">
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <p class="text-xl font-bold text-gray-900 dark:text-white" id="displayName" data-i18n="profile.loading">Carregando...</p>
+                        <span id="verifiedBadge" class="hidden inline-flex items-center justify-center">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" fill="#10b981"/>
+                                <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <p class="text-sm text-purple-600 dark:text-purple-400 font-medium mb-3" id="nip05Display">
+                        <span class="opacity-0">nome@libernet.app</span>
+                    </p>
+
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-2" id="userName">@username</p>
+
+                    <p class="text-xs text-gray-500 dark:text-gray-400 break-all font-mono mb-3" id="userNpub">{{ npub }}</p>
+
+                    <p class="text-sm text-gray-700 dark:text-gray-300" id="userAbout"></p>
+                </div>
+            </div>
+
+            <!-- Botão Editar Perfil -->
+            <button onclick="window.location.href='/edit-profile'" class="mt-4 w-full sm:w-auto px-6 py-2 bg-gray-700 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-gray-100 dark:text-white font-medium rounded-lg transition-colors" data-i18n="profile.edit_profile">
+                Editar Perfil
+            </button>
+        </div>
+
+        <!-- NIP-05 Verification -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-4">
+            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white" data-i18n="profile.nip05_title">Verificação NIP-05</h2>
+
+            <div class="mb-4">
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p class="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                        <strong data-i18n="profile.nip05_what">O que é NIP-05?</strong>
+                    </p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300" data-i18n="profile.nip05_description">
+                        É um identificador legível que conecta seu nome à sua chave pública Nostr. Em vez de npub1xxx..., você será conhecido como <strong>seunome@libernet.app</strong> e receberá um selo de verificação.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Status da Verificação -->
+            <div id="nip05Status" class="mb-4">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+
+            <!-- Formulário de Solicitação -->
+            <div id="nip05Form" style="display: none;">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-3 text-gray-900 dark:text-gray-200" data-i18n="profile.nip05_choose_username">
+                        Escolha seu username:
+                    </label>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input
+                            type="text"
+                            id="usernameInput"
+                            placeholder="seunome"
+                            pattern="[a-z0-9_-]{3,20}"
+                            class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        >
+                        <span class="text-gray-600 dark:text-gray-400">@libernet.app</span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed" data-i18n="profile.nip05_username_rules">
+                        Apenas letras minúsculas, números, hífen (-) e underscore (_). Entre 3 e 20 caracteres.
+                    </p>
+                    <div id="usernameAvailability" class="mt-3 text-sm"></div>
+                </div>
+
+                <button
+                    id="requestNip05Btn"
+                    onclick="requestNip05()"
+                    class="w-full bg-yellow-500 dark:bg-yellow-400 hover:bg-yellow-600 dark:hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                    data-i18n="profile.nip05_request"
+                >
+                    Solicitar Verificação
+                </button>
+            </div>
+        </div>
+
+        <!-- Sair -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <a href="/logout" class="block w-full py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg text-center transition-colors" data-i18n="profile.logout">
+                Sair
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+        <!-- Chats -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.chats">Chats</span>
+        </button>
+
+        <!-- Grupos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.groups">Grupos</span>
+        </button>
+
+        <!-- Contatos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.contacts">Contatos</span>
+        </button>
+
+        <!-- Configurações -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.settings">Config</span>
+        </button>
+        </div>
+    </div>
+</nav>
+
+<script>
+const npub = '{{ npub }}';
+const pubkey = '{{ pubkey }}';
+
+// Carregar perfil do usuário via NIP-01
+async function loadUserProfile() {
+    try {
+        console.log('[PROFILE] Buscando perfil para:', npub);
+
+        // Buscar perfil nos relays via backend
+        const response = await fetch('/api/nostr/profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ npub: npub })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.perfil) {
+            const perfil = data.perfil;
+
+            console.log('[PROFILE] Perfil encontrado:', perfil);
+
+            // Verificar NIP-05 se existir
+            let nip05_verified = false;
+            if (perfil.nip05) {
+                nip05_verified = await verifyNip05(perfil.nip05, pubkey);
+                console.log('[NIP-05] Verificação:', perfil.nip05, '=', nip05_verified);
+            }
+
+            const profile = {
+                picture: perfil.picture,
+                display_name: perfil.display_name || perfil.name,
+                name: perfil.name,
+                about: perfil.about,
+                nip05: perfil.nip05,
+                nip05_verified: nip05_verified
+            };
+
+            updateProfileUI(profile);
+        } else {
+            console.log('[PROFILE] Perfil não encontrado, usando dados básicos');
+
+            // Usar dados básicos se não encontrar perfil
+            const basicProfile = {
+                picture: null,
+                display_name: npub.substring(0, 12) + '...',
+                name: null,
+                about: null,
+                nip05: null,
+                nip05_verified: false
+            };
+
+            updateProfileUI(basicProfile);
+        }
+    } catch (error) {
+        console.error('[PROFILE] Erro ao carregar perfil:', error);
+
+        // Fallback para dados básicos
+        updateProfileUI({
+            picture: null,
+            display_name: npub.substring(0, 12) + '...',
+            name: null,
+            about: null,
+            nip05: null,
+            nip05_verified: false
+        });
+    }
+}
+
+// Verificar NIP-05
+async function verifyNip05(nip05, expectedPubkey) {
+    try {
+        const [name, domain] = nip05.split('@');
+        if (!name || !domain) return false;
+
+        const url = `https://${domain}/.well-known/nostr.json?name=${name}`;
+        const response = await fetch(url);
+
+        if (!response.ok) return false;
+
+        const data = await response.json();
+        const pubkeyFromNip05 = data.names?.[name];
+
+        // Comparar pubkey retornado com pubkey esperado
+        return pubkeyFromNip05 === expectedPubkey;
+    } catch (error) {
+        console.error('[NIP-05] Erro ao verificar:', error);
+        return false;
+    }
+}
+
+function updateProfileUI(profile) {
+    console.log('[PROFILE] Atualizando UI com:', profile);
+
+    // Avatar
+    if (profile.picture) {
+        document.getElementById('userAvatar').src = profile.picture;
+    }
+
+    // Display Name
+    const displayName = profile.display_name || profile.name || npub.substring(0, 12) + '...';
+    document.getElementById('displayName').textContent = displayName;
+
+    // Username
+    if (profile.name) {
+        document.getElementById('userName').textContent = '@' + profile.name;
+        document.getElementById('userName').style.display = 'block';
+    } else {
+        document.getElementById('userName').style.display = 'none';
+    }
+
+    // NIP-05
+    const nip05Display = document.getElementById('nip05Display');
+    const verifiedBadge = document.getElementById('verifiedBadge');
+
+    if (profile.nip05 && profile.nip05_verified) {
+        nip05Display.innerHTML = profile.nip05;
+        nip05Display.style.opacity = '1';
+        verifiedBadge.classList.remove('hidden');
+        console.log('[PROFILE] NIP-05 verificado:', profile.nip05);
+    } else if (profile.nip05) {
+        // Tem NIP-05 mas não verificado
+        nip05Display.innerHTML = `${profile.nip05} <span class="text-xs text-gray-400">(não verificado)</span>`;
+        nip05Display.style.opacity = '1';
+        verifiedBadge.classList.add('hidden');
+        console.log('[PROFILE] NIP-05 não verificado:', profile.nip05);
+    } else {
+        nip05Display.style.opacity = '0';
+        verifiedBadge.classList.add('hidden');
+        console.log('[PROFILE] Sem NIP-05');
+    }
+
+    // About
+    const aboutElement = document.getElementById('userAbout');
+    if (profile.about) {
+        aboutElement.textContent = profile.about;
+        aboutElement.style.display = 'block';
+    } else {
+        aboutElement.style.display = 'none';
+    }
+}
+
+// Username input validation
+const usernameInput = document.getElementById('usernameInput');
+const requestBtn = document.getElementById('requestNip05Btn');
+let checkTimeout;
+
+usernameInput.addEventListener('input', function() {
+    const username = this.value.toLowerCase().trim();
+
+    clearTimeout(checkTimeout);
+
+    if (username.length < 3) {
+        requestBtn.disabled = true;
+        document.getElementById('usernameAvailability').innerHTML = '';
+        return;
+    }
+
+    if (!/^[a-z0-9_-]+$/.test(username)) {
+        requestBtn.disabled = true;
+        const invalidMsg = window.i18n ? window.i18n.t('profile.nip05_invalid') : 'Apenas letras minúsculas, números, - e _';
+        document.getElementById('usernameAvailability').innerHTML =
+            `<span class="text-red-600 dark:text-red-400">❌ ${invalidMsg}</span>`;
+        return;
+    }
+
+    requestBtn.disabled = true;
+    const checkingMsg = window.i18n ? window.i18n.t('profile.nip05_checking') : 'Verificando...';
+    document.getElementById('usernameAvailability').innerHTML =
+        `<span class="text-gray-500">⏳ ${checkingMsg}</span>`;
+
+    checkTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(`/api/nip05/check-username?username=${username}`);
+            const data = await response.json();
+
+            if (data.available) {
+                requestBtn.disabled = false;
+                const availableMsg = window.i18n ? window.i18n.t('profile.nip05_available') : 'Disponível!';
+                document.getElementById('usernameAvailability').innerHTML =
+                    `<span class="text-green-600 dark:text-green-400">✓ ${availableMsg}</span>`;
+            } else {
+                requestBtn.disabled = true;
+                const unavailableMsg = window.i18n ? window.i18n.t('profile.nip05_unavailable') : 'Já está em uso';
+                document.getElementById('usernameAvailability').innerHTML =
+                    `<span class="text-red-600 dark:text-red-400">❌ ${unavailableMsg}</span>`;
+            }
+        } catch (error) {
+            console.error('Erro ao verificar username:', error);
+            requestBtn.disabled = false;
+            document.getElementById('usernameAvailability').innerHTML = '';
+        }
+    }, 500);
+});
+
+// Solicitar NIP-05
+async function requestNip05() {
+    const username = usernameInput.value.toLowerCase().trim();
+    const btn = requestBtn;
+
+    if (!username || username.length < 3) {
+        alert('Username inválido');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Enviando...';
+
+    try {
+        const response = await fetch('/api/nip05/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: username,
+                npub: npub,
+                pubkey: pubkey
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert(`✅ ${data.message}\n\nSua solicitação será revisada em até 24 horas.`);
+            usernameInput.value = '';
+            document.getElementById('usernameAvailability').innerHTML = '';
+            loadNip05Status();
+        } else {
+            alert('❌ Erro: ' + (data.error || 'Falha ao solicitar verificação'));
+            btn.disabled = false;
+            btn.textContent = 'Solicitar Verificação';
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao solicitar verificação');
+        btn.disabled = false;
+        btn.textContent = 'Solicitar Verificação';
+    }
+}
+
+// Carregar status do NIP-05
+async function loadNip05Status() {
+    try {
+        const statusDiv = document.getElementById('nip05Status');
+        const formDiv = document.getElementById('nip05Form');
+
+        // Esconder formulário inicialmente
+        formDiv.style.display = 'none';
+
+        // Aguardar carregamento do perfil
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Verificar se já tem NIP-05 no perfil Nostr
+        const nip05Display = document.getElementById('nip05Display');
+        const verifiedBadge = document.getElementById('verifiedBadge');
+        const hasNostrNip05 = nip05Display && nip05Display.style.opacity === '1' && !verifiedBadge.classList.contains('hidden');
+
+        console.log('[NIP-05] Verificando status:', {
+            hasNip05Display: !!nip05Display,
+            opacity: nip05Display?.style.opacity,
+            badgeHidden: verifiedBadge?.classList.contains('hidden'),
+            hasNostrNip05
+        });
+
+        if (hasNostrNip05) {
+            const nip05Value = nip05Display.textContent;
+
+            statusDiv.innerHTML = `
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <p class="text-green-800 dark:text-green-200 font-semibold mb-1" data-i18n="profile.nip05_verified_nostr">✓ Verificado via Nostr</p>
+                    <p class="text-sm text-green-700 dark:text-green-300">
+                        <span data-i18n="profile.nip05_your_identifier">Seu identificador:</span> <strong>${nip05Value}</strong>
+                    </p>
+                    <p class="text-xs text-green-600 dark:text-green-400 mt-2" data-i18n="profile.nip05_active_on_relays">
+                        Seu NIP-05 está ativo e verificado nos relays Nostr.
+                    </p>
+                </div>
+            `;
+            formDiv.style.display = 'none';
+            if (window.i18n) window.i18n.translatePage();
+            return;
+        }
+
+        // Se não tem NIP-05 no perfil, verificar se tem solicitação @libernet.app
+        const response = await fetch(`/api/nip05/status?pubkey=${pubkey}`);
+        const data = await response.json();
+
+        if (data.has_nip05 && data.verified) {
+            statusDiv.innerHTML = `
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <p class="text-green-800 dark:text-green-200 font-semibold mb-1" data-i18n="profile.nip05_verified_libernet">✓ Verificado @libernet.app</p>
+                    <p class="text-sm text-green-700 dark:text-green-300">
+                        <span data-i18n="profile.nip05_your_identifier">Seu identificador:</span> <strong>${data.nip05}</strong>
+                    </p>
+                    <p class="text-xs text-green-600 dark:text-green-400 mt-2" data-i18n="profile.nip05_update_profile">
+                        ⚠️ Atualize seu perfil Nostr (kind 0) com este NIP-05 para ativá-lo.
+                    </p>
+                </div>
+            `;
+            formDiv.style.display = 'none';
+            if (window.i18n) window.i18n.translatePage();
+        } else if (data.has_nip05 && !data.verified) {
+            statusDiv.innerHTML = `
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <p class="text-yellow-800 dark:text-yellow-200 font-semibold mb-1" data-i18n="profile.nip05_pending">⏳ Aguardando aprovação</p>
+                    <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                        <span data-i18n="profile.nip05_username_requested">Username solicitado:</span> <strong>${data.username}@libernet.app</strong><br>
+                        <span data-i18n="profile.nip05_review_soon">Sua verificação será revisada em breve.</span>
+                    </p>
+                </div>
+            `;
+            formDiv.style.display = 'none';
+            if (window.i18n) window.i18n.translatePage();
+        } else {
+            // Não tem NIP-05 - mostrar formulário para solicitar
+            statusDiv.innerHTML = `
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p class="text-sm text-blue-800 dark:text-blue-200" data-i18n="profile.nip05_no_identifier">
+                        Você ainda não possui um identificador NIP-05. Solicite um username @libernet.app gratuitamente abaixo.
+                    </p>
+                </div>
+            `;
+            formDiv.style.display = 'block';
+            if (window.i18n) window.i18n.translatePage();
+        }
+    } catch (error) {
+        console.error('[NIP-05] Erro ao carregar status:', error);
+    }
+}
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserProfile();
+    loadNip05Status();
+});
+
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    console.log('[SETTINGS] Idioma alterado, recarregando página...');
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+});
+</script>
+
+{% endblock %}

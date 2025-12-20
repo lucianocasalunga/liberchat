@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<script>
+// Aplica tema antes de renderizar para evitar flash
+(function() {
+  const savedTheme = localStorage.getItem('liberchat_theme') || 'auto';
+  let theme = savedTheme;
+
+  if (savedTheme === 'auto') {
+    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  }
+})();
+</script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="version" content="8.0.0">
+
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="LiberChat">
+
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LiberChat">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#000000">
+    <meta name="msapplication-TileColor" content="#000000">
+
+    <title>{% block title %}LiberChat{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- i18n Internationalization -->
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/icons/message-circle.svg">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/images/icon-152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/static/images/icon-144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/images/icon-128.png">
+
+    <!-- Splash Screens iOS -->
+    <link rel="apple-touch-startup-image" href="/static/images/icon-512.png">
+
+    <style>
+        /* Reset para PWA mobile */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        body {
+            height: 100vh;
+            height: 100dvh; /* dynamic viewport height (melhor para mobile) */
+            overflow: hidden;
+            position: relative; /* mudou de fixed para relative */
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            /* PWA safe area */
+            padding-top: env(safe-area-inset-top);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            /* Removido padding-bottom porque a nav já tem safe-area */
+            /* Desabilitar overscroll/bounce no iOS */
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Tema claro (padrão) */
+        body, html {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+
+        /* Tema escuro */
+        html.dark body, html.dark {
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+
+        /* Tailwind dark mode support */
+        .dark {
+            color-scheme: dark;
+        }
+
+        /* Ícones SVG - garantir visibilidade */
+        img[src$=".svg"] {
+            display: inline-block;
+        }
+
+        /* Ícones com stroke preto no tema escuro precisam ficar brancos */
+        html.dark img[src$=".svg"]:not([class*="brightness"]) {
+            filter: invert(1);
+        }
+
+        /* Ícones que já têm brightness-0 (preto forçado) não invertem */
+        html.dark img[src$=".svg"][class*="brightness"] {
+            filter: none;
+        }
+
+        /* ========== WALLPAPERS - RESPONSIVOS ========== */
+        /* Padrão (cinza claro) */
+        .wallpaper-default {
+            background: #f5f5f5;
+        }
+        html.dark .wallpaper-default {
+            background: #1a1a1a;
+        }
+
+        /* Degradê Rosa */
+        .wallpaper-gradient-pink {
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0f0 50%, #ffd4eb 100%);
+        }
+        html.dark .wallpaper-gradient-pink {
+            background: linear-gradient(135deg, #2d1a25 0%, #3d1f2f 50%, #4d2438 100%);
+        }
+
+        /* Degradê Azul */
+        .wallpaper-gradient-blue {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+        }
+        html.dark .wallpaper-gradient-blue {
+            background: linear-gradient(135deg, #1a2332 0%, #1f2d42 50%, #243751 100%);
+        }
+
+        /* Degradê Roxo */
+        .wallpaper-gradient-purple {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%);
+        }
+        html.dark .wallpaper-gradient-purple {
+            background: linear-gradient(135deg, #261a2d 0%, #341f3d 50%, #42244d 100%);
+        }
+
+        /* Degradê Verde */
+        .wallpaper-gradient-green {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+        }
+        html.dark .wallpaper-gradient-green {
+            background: linear-gradient(135deg, #1a2d1a 0%, #1f3d1f 50%, #244d24 100%);
+        }
+
+        /* Degradê Laranja */
+        .wallpaper-gradient-orange {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%);
+        }
+        html.dark .wallpaper-gradient-orange {
+            background: linear-gradient(135deg, #2d2319 0%, #3d2f1f 50%, #4d3b24 100%);
+        }
+
+        /* Padrão Geométrico */
+        .wallpaper-geometric {
+            background:
+                linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
+                linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
+                linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+            background-color: #f5f5f5;
+        }
+        html.dark .wallpaper-geometric {
+            background:
+                linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
+                linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
+                linear-gradient(-45deg, transparent 75%, #2a2a2a 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+            background-color: #1a1a1a;
+        }
+
+        /* Escuro Sutil */
+        .wallpaper-dark-subtle {
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+        }
+        html.dark .wallpaper-dark-subtle {
+            background: linear-gradient(135deg, #0d0d0d 0%, #000000 100%);
+        }
+
+        /* Claro Minimalista */
+        .wallpaper-minimal-light {
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        }
+        html.dark .wallpaper-minimal-light {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        }
+
+        /* Responsividade: scroll em mobile, fixed em desktop */
+        @media (max-width: 768px) {
+            [class*="wallpaper-"] {
+                background-attachment: scroll;
+            }
+        }
+        @media (min-width: 769px) {
+            [class*="wallpaper-"] {
+                background-attachment: fixed;
+            }
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        yellow: {
+                            500: '#FFC107',
+                            600: '#FFB300',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    {% block head %}{% endblock %}
+</head>
+<body class="light">
+    {% block content %}{% endblock %}
+
+    <!-- Scripts -->
+    <script>
+        // Gerenciamento de tema (light, dark, auto)
+        function applyTheme(themeSetting) {
+            let actualTheme = themeSetting;
+
+            if (themeSetting === 'auto') {
+                actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            if (actualTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('liberchat_theme', theme);
+            applyTheme(theme);
+
+            // Atualiza UI do selector se existir
+            const themeButtons = document.querySelectorAll('[data-theme]');
+            themeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === theme);
+            });
+        }
+
+        function getCurrentTheme() {
+            return localStorage.getItem('liberchat_theme') || 'auto';
+        }
+
+        // Aplicar tema inicial
+        applyTheme(getCurrentTheme());
+
+        // Listener para mudanças no tema do sistema
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (getCurrentTheme() === 'auto') {
+                applyTheme('auto');
+            }
+        });
+
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js').then(reg => {
+                // Força atualização do SW
+                reg.update();
+
+                // Quando encontrar um novo SW, ativar imediatamente
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                            console.log('[SW] Nova versão instalada, recarregando...');
+                            window.location.reload();
+                        }
+                    });
+                });
+            });
+
+            // Quando o controller mudar, recarregar
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+            });
+        }
+    </script>
+
+    <!-- Wallpaper Script -->
+    <script src="/static/js/wallpaper.js"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Editar Perfil</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+        <!-- Foto de Perfil -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Foto de Perfil</h2>
+
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <img id="profilePicture"
+                         src="/static/img/avatar-default.png"
+                         class="w-24 h-24 rounded-full border-4 border-yellow-500 object-cover"
+                         alt="Foto de perfil">
+                    <div id="badgeOverlay" class="absolute -bottom-1 -right-1 w-8 h-8">
+                        <!-- Badge será inserido aqui -->
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        URL da imagem:
+                    </label>
+                    <input
+                        type="url"
+                        id="pictureUrl"
+                        placeholder="https://exemplo.com/minha-foto.jpg"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Cole a URL da sua foto. Use serviços como nostr.build ou imgur.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações Básicas -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Informações Básicas</h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        Nome de exibição:
+                    </label>
+                    <input
+                        type="text"
+                        id="displayName"
+                        placeholder="Seu nome"
+                        maxlength="50"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        Username (identificador):
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="seunome"
+                        maxlength="30"
+                        pattern="[a-z0-9_-]+"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Apenas letras minúsculas, números, hífen e underscore
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        Sobre você:
+                    </label>
+                    <textarea
+                        id="about"
+                        placeholder="Conte um pouco sobre você..."
+                        rows="4"
+                        maxlength="500"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                    ></textarea>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span id="aboutCount">0</span>/500 caracteres
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selos -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Seu Selo</h2>
+
+            <div id="badgeInfo" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <div id="currentBadge"></div>
+                    <div>
+                        <p class="font-semibold text-blue-900 dark:text-blue-100" id="badgeTitle">Carregando...</p>
+                        <p class="text-sm text-blue-800 dark:text-blue-200" id="badgeDescription">Verificando seu selo...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                <p class="font-medium text-gray-900 dark:text-white mb-3">Tipos de Selos:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#E5E7EB"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Gratuito</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Usuários padrão</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#3B82F6"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Pago</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Apoiadores</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#6B7280"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Admin</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Barak e Sofia</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#F59E0B"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Dourado</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Reservado</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#10B981"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Verde</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Reservado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Links</h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        Website:
+                    </label>
+                    <input
+                        type="url"
+                        id="website"
+                        placeholder="https://seusite.com"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        Lightning Address:
+                    </label>
+                    <input
+                        type="text"
+                        id="lud16"
+                        placeholder="usuario@getalby.com"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Para receber pagamentos via Lightning
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex gap-3">
+            <button onclick="window.history.back()" class="flex-1 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white font-medium">
+                Cancelar
+            </button>
+            <button onclick="saveProfile()" class="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors">
+                Salvar Perfil
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Chats</span>
+            </button>
+
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Grupos</span>
+            </button>
+
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Contatos</span>
+            </button>
+
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Config</span>
+            </button>
+        </div>
+    </div>
+    </nav>
+
+<script>
+const npub = '{{ npub }}';
+const pubkey = '{{ pubkey }}';
+
+// Badge SVGs
+const badges = {
+    free: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#E5E7EB"/>
+        <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    paid: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#3B82F6"/>
+        <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    admin: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#6B7280"/>
+        <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    gold: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#F59E0B"/>
+        <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    green: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#10B981"/>
+        <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`
+};
+
+const badgeInfo = {
+    free: { title: 'Usuário Gratuito', description: 'Selo padrão para todos os usuários' },
+    paid: { title: 'Apoiador', description: 'Obrigado por apoiar o projeto!' },
+    admin: { title: 'Administrador', description: 'Equipe LiberNet' },
+    gold: { title: 'Selo Dourado', description: 'Selo especial reservado' },
+    green: { title: 'Selo Verde', description: 'Selo especial reservado' }
+};
+
+// Carregar perfil existente
+async function loadCurrentProfile() {
+    try {
+        const response = await fetch('/api/nostr/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ npub })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.perfil) {
+            const p = data.perfil;
+
+            if (p.picture) {
+                document.getElementById('profilePicture').src = p.picture;
+                document.getElementById('pictureUrl').value = p.picture;
+            }
+            if (p.display_name) document.getElementById('displayName').value = p.display_name;
+            if (p.name) document.getElementById('name').value = p.name;
+            if (p.about) {
+                document.getElementById('about').value = p.about;
+                updateCharCount();
+            }
+            if (p.website) document.getElementById('website').value = p.website;
+            if (p.lud16) document.getElementById('lud16').value = p.lud16;
+        }
+
+        // Carregar badge do usuário
+        loadUserBadge();
+    } catch (error) {
+        console.error('Erro ao carregar perfil:', error);
+    }
+}
+
+async function loadUserBadge() {
+    try {
+        const response = await fetch(`/api/user/badge?pubkey=${pubkey}`);
+        const data = await response.json();
+
+        const badgeType = data.badge || 'free';
+        const info = badgeInfo[badgeType];
+
+        document.getElementById('currentBadge').innerHTML = badges[badgeType];
+        document.getElementById('badgeTitle').textContent = info.title;
+        document.getElementById('badgeDescription').textContent = info.description;
+
+        // Mostrar badge no overlay da foto
+        document.getElementById('badgeOverlay').innerHTML = badges[badgeType];
+    } catch (error) {
+        console.error('Erro ao carregar badge:', error);
+        document.getElementById('currentBadge').innerHTML = badges.free;
+        document.getElementById('badgeTitle').textContent = 'Usuário Gratuito';
+        document.getElementById('badgeDescription').textContent = 'Selo padrão';
+    }
+}
+
+// Atualizar contagem de caracteres
+function updateCharCount() {
+    const about = document.getElementById('about').value;
+    document.getElementById('aboutCount').textContent = about.length;
+}
+
+document.getElementById('about').addEventListener('input', updateCharCount);
+
+// Atualizar preview da foto
+document.getElementById('pictureUrl').addEventListener('input', function() {
+    const url = this.value.trim();
+    if (url) {
+        document.getElementById('profilePicture').src = url;
+    }
+});
+
+// Salvar perfil
+async function saveProfile() {
+    const profile = {
+        picture: document.getElementById('pictureUrl').value.trim(),
+        display_name: document.getElementById('displayName').value.trim(),
+        name: document.getElementById('name').value.trim(),
+        about: document.getElementById('about').value.trim(),
+        website: document.getElementById('website').value.trim(),
+        lud16: document.getElementById('lud16').value.trim()
+    };
+
+    console.log('Salvando perfil:', profile);
+
+    alert('🚧 Funcionalidade em desenvolvimento!\n\nEm breve você poderá publicar seu perfil diretamente nos relays Nostr.');
+    // TODO: Implementar publicação no Nostr (kind 0)
+}
+
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+
+// Carregar perfil ao abrir página
+document.addEventListener('DOMContentLoaded', loadCurrentProfile);
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

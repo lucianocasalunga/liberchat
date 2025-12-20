@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emojis - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='/chat'" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="/static/icons/smile.svg" class="w-6 h-6 dark:invert" alt="">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Emojis</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+        <!-- Meus Emojis Favoritos -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div>
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/star.svg" class="w-5 h-5 dark:invert" alt="">
+                        Meus Emojis Favoritos
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Clique em um emoji abaixo para adicionar aos favoritos
+                    </p>
+                </div>
+                <button onclick="clearFavorites()" class="text-xs px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium">
+                    Limpar
+                </button>
+            </div>
+
+            <div class="p-4">
+                <div id="favoriteEmojis" class="grid grid-cols-8 gap-2 min-h-[80px]">
+                    <div class="col-span-8 text-center text-sm text-gray-500 dark:text-gray-400 py-6">
+                        Nenhum emoji favorito ainda
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adicionar Emojis -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                    <img src="/static/icons/grid.svg" class="w-5 h-5 dark:invert" alt="">
+                    Adicionar Emojis
+                </h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Clique para adicionar aos favoritos
+                </p>
+            </div>
+
+            <!-- Categorias -->
+            <div class="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+                <div class="flex">
+                    <button onclick="showCategory('smiles')" class="category-tab active px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        😀 Sorrisos
+                    </button>
+                    <button onclick="showCategory('gestures')" class="category-tab px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        👋 Gestos
+                    </button>
+                    <button onclick="showCategory('animals')" class="category-tab px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        🐱 Animais
+                    </button>
+                    <button onclick="showCategory('food')" class="category-tab px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        🍕 Comida
+                    </button>
+                    <button onclick="showCategory('travel')" class="category-tab px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        ✈️ Viagens
+                    </button>
+                    <button onclick="showCategory('objects')" class="category-tab px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        💡 Objetos
+                    </button>
+                    <button onclick="showCategory('symbols')" class="category-tab px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap text-gray-600 dark:text-gray-300">
+                        ❤️ Símbolos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid de Emojis -->
+            <div class="p-4">
+                <div id="emojiGrid" class="grid grid-cols-8 gap-2"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Chats</span>
+            </button>
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Grupos</span>
+            </button>
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Contatos</span>
+            </button>
+            <button onclick="window.location.href='/chat'" class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
+                <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Config</span>
+            </button>
+        </div>
+    </div>
+    </nav>
+
+    <style>
+        /* Botão de emoji */
+        .emoji-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: transparent;
+        }
+
+        .emoji-btn:hover {
+            background: rgb(243 244 246);
+            transform: scale(1.1);
+        }
+
+        html.dark .emoji-btn:hover {
+            background: rgb(55 65 81);
+        }
+
+        /* Tabs de categoria */
+        .category-tab {
+            border-bottom-color: transparent;
+        }
+
+        .category-tab.active {
+            border-bottom-color: rgb(234 179 8);
+            color: rgb(234 179 8) !important;
+        }
+    </style>
+
+    <script>
+        // Banco de emojis por categoria
+        const emojiCategories = {
+            smiles: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱'],
+            gestures: ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🦷','🦴','👀','👁️','👅','👄'],
+            animals: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔'],
+            food: ['🍇','🍈','🍉','🍊','🍋','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🥝','🍅','🥥','🥑','🍆','🥔','🥕','🌽','🌶️','🥒','🥬','🥦','🧄','🧅','🍄','🥜','🌰','🍞','🥐','🥖','🥨','🥯','🥞','🧇','🧀','🍖','🍗','🥩','🥓','🍔','🍟','🍕','🌭','🥪','🌮','🌯','🥙','🧆','🥚','🍳','🥘','🍲','🥣','🥗','🍿','🧈','🧂','🥫','🍱','🍘','🍙','🍚','🍛','🍜','🍝','🍠','🍢','🍣','🍤','🍥','🥮','🍡','🥟','🥠','🥡','🦀','🦞','🦐','🦑','🦪','🍦','🍧','🍨','🍩','🍪','🎂','🍰','🧁','🥧','🍫','🍬','🍭','🍮','🍯','🍼','🥛','☕','🍵','🍶','🍾','🍷','🍸','🍹','🍺','🍻','🥂','🥃','🥤','🧃','🧉','🧊'],
+            travel: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🦯','🦽','🦼','🛴','🚲','🛵','🏍️','🛺','🚨','🚔','🚍','🚘','🚖','🚡','🚠','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🛩️','💺','🛰️','🚀','🛸','🚁','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','⚓','⛽','🚧','🚦','🚥','🗺️','🗿','🗽','🗼','🏰','🏯','🏟️','🎡','🎢','🎠','⛲','⛱️','🏖️','🏝️','🏜️','🌋','⛰️','🏔️','🗻','🏕️','⛺','🛖','🏠','🏡','🏘️','🏚️','🏗️','🏭','🏢','🏬','🏣','🏤','🏥','🏦','🏨','🏪','🏫','🏩','💒','🏛️','⛪','🕌','🕍','🛕','🕋'],
+            objects: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💾','💿','📀','📼','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💸','💵','💴','💶','💷','💰','💳','💎','⚖️','🪜','🧰','🔧','🔨','⚒️','🛠️','⛏️','🔩','⚙️','🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️','🚬','⚰️','⚱️','🏺','🔮','📿','🧿','💈','⚗️','🔭','🔬','🕳️','🩹','🩺','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡️','🧹','🧺','🧻','🚽','🚰','🚿','🛁','🛀','🧼','🪒','🧽','🧴','🛎️','🔑','🗝️','🚪','🪑','🛋️','🛏️','🖼️','🧳'],
+            symbols: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫','💯','💢','♨️','🚷','🚯','🚳','🚱','🔞','📵','🚭','❗','❕','❓','❔','‼️','⁉️','🔅','🔆','〽️','⚠️','🚸','🔱','⚜️','🔰','♻️','✅','🈯','💹','❇️','✳️','❎','🌐','💠','Ⓜ️','🌀','💤','🏧','🚾','♿','🅿️','🈳','🈂️','🛂','🛃','🛄','🛅','🚹','🚺','🚼','⚧️','🚻','🚮','🎦','📶','🈁','🔣','ℹ️','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔢','#️⃣','*️⃣','⏏️','▶️','⏸️','⏯️','⏹️','⏺️','⏭️','⏮️','⏩','⏪','⏫','⏬','◀️','🔼','🔽','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','↪️','↩️','⤴️','⤵️','🔀','🔁','🔂','🔄','🔃','🎵','🎶','➕','➖','➗','✖️','♾️','💲','💱','™️','©️','®️','〰️','➰','➿','🔚','🔙','🔛','🔝','🔜','✔️','☑️','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔸','🔹','🔶','🔷','🔳','🔲','▪️','▫️','◾','◽','◼️','◻️','🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜','🟫','🔈','🔇','🔉','🔊','🔔','🔕','📣','📢','💬','💭','🗯️','♠️','♣️','♥️','♦️','🃏','🎴','🀄','🕐','🕑','🕒','🕓','🕔','🕕','🕖','🕗','🕘','🕙','🕚','🕛','🕜','🕝','🕞','🕟','🕠','🕡','🕢','🕣','🕤','🕥','🕦','🕧']
+        };
+
+        let currentCategory = 'smiles';
+        let favorites = [];
+
+        // Carregar favoritos do localStorage
+        function loadFavorites() {
+            const saved = localStorage.getItem('favoriteEmojis');
+            if (saved) {
+                favorites = JSON.parse(saved);
+                renderFavorites();
+            }
+        }
+
+        // Renderizar favoritos
+        function renderFavorites() {
+            const container = document.getElementById('favoriteEmojis');
+            if (favorites.length === 0) {
+                container.innerHTML = '<div class="col-span-8 text-center text-sm text-gray-500 dark:text-gray-400 py-6">Nenhum emoji favorito ainda</div>';
+            } else {
+                container.innerHTML = favorites.map(emoji =>
+                    `<button class="emoji-btn" onclick="removeFromFavorites('${emoji}')" title="Clique para remover">${emoji}</button>`
+                ).join('');
+            }
+        }
+
+        // Adicionar aos favoritos
+        function addToFavorites(emoji) {
+            if (!favorites.includes(emoji)) {
+                favorites.push(emoji);
+                localStorage.setItem('favoriteEmojis', JSON.stringify(favorites));
+                renderFavorites();
+            }
+        }
+
+        // Remover dos favoritos
+        function removeFromFavorites(emoji) {
+            favorites = favorites.filter(e => e !== emoji);
+            localStorage.setItem('favoriteEmojis', JSON.stringify(favorites));
+            renderFavorites();
+        }
+
+        // Limpar favoritos
+        function clearFavorites() {
+            if (confirm('Deseja remover todos os emojis favoritos?')) {
+                favorites = [];
+                localStorage.removeItem('favoriteEmojis');
+                renderFavorites();
+            }
+        }
+
+        // Mostrar categoria
+        function showCategory(category) {
+            currentCategory = category;
+
+            // Atualizar tabs
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Renderizar emojis
+            const grid = document.getElementById('emojiGrid');
+            grid.innerHTML = emojiCategories[category].map(emoji =>
+                `<button class="emoji-btn" onclick="addToFavorites('${emoji}')" title="Adicionar aos favoritos">${emoji}</button>`
+            ).join('');
+        }
+
+        // Aplicar tema
+        function applyTheme(themeSetting) {
+            let actualTheme = themeSetting;
+
+            if (themeSetting === 'auto') {
+                actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            if (actualTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        // Aplicar tema inicial
+        applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFavorites();
+            showCategory('smiles');
+        });
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    setTimeout(() => window.location.reload(), 500);
+});
+    </script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

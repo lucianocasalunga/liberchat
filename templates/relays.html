@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relays - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="/static/icons/radio.svg" class="w-6 h-6 dark:invert" alt="">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="relays.title">Relays</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+            <!-- Info -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <div class="flex gap-2">
+                    <img src="/static/icons/info.svg" class="w-5 h-5 text-blue-600 dark:invert flex-shrink-0 mt-0.5" alt="">
+                    <div class="text-sm text-blue-800 dark:text-blue-300">
+                        <p class="font-semibold mb-1" data-i18n="relays.info_title">O que são Relays?</p>
+                        <p class="text-xs" data-i18n="relays.info_text">Relays são servidores que transmitem mensagens na rede Nostr. Conecte-se a múltiplos relays para maior disponibilidade e alcance.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Relays -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center justify-between text-gray-900 dark:text-white">
+                        <span class="flex items-center gap-2">
+                            <img src="/static/icons/radio.svg" class="w-5 h-5 dark:invert" alt="">
+                            Meus Relays
+                        </span>
+                        <span id="relayCount" class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                            1/12
+                        </span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Relay principal + até 11 relays adicionais
+                    </p>
+                </div>
+
+                <!-- Adicionar novo relay -->
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <input
+                                type="text"
+                                id="newRelayInput"
+                                placeholder="wss://seu.relay"
+                                class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent font-mono text-sm"
+                            >
+                        </div>
+                        <button
+                            onclick="addRelay()"
+                            id="addRelayBtn"
+                            class="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
+                            data-i18n="relays.add_button"
+                        >
+                            Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de relays -->
+                <div id="relaysList" class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Relay Principal (sempre primeiro) -->
+                    <div class="flex items-center gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/10">
+                        <!-- Status -->
+                        <div class="flex-shrink-0">
+                            <div id="defaultRelayStatus" class="w-3 h-3 rounded-full status-gray animate-pulse"></div>
+                        </div>
+
+                        <!-- URL -->
+                        <div class="flex-1 min-w-0">
+                            <p class="font-mono text-sm text-gray-900 dark:text-white mb-1">wss://relay.libernet.app</p>
+                            <p id="defaultRelayStatusText" class="text-xs text-gray-500 dark:text-gray-400">Verificando...</p>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="flex gap-2">
+                            <button
+                                onclick="testRelay('wss://relay.libernet.app', 'defaultRelayStatus', 'defaultRelayStatusText')"
+                                class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black rounded text-xs font-medium transition-colors"
+                                data-i18n="buttons.test"
+                            >
+                                Testar
+                            </button>
+                            <button
+                                disabled
+                                class="p-1.5 bg-gray-300 dark:bg-gray-700 rounded text-white opacity-50 cursor-not-allowed"
+                                title="Relay principal não pode ser removido"
+                            >
+                                <img src="/static/icons/trash.svg" class="w-4 h-4 brightness-0 invert" alt="">
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Relays adicionais serão adicionados aqui via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Relays Sugeridos -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/lightbulb.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="relays.suggested">Relays Sugeridos</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="relays.suggested_subtitle">
+                        Relays públicos populares e confiáveis
+                    </p>
+                </div>
+
+                <div class="p-4 grid grid-cols-1 gap-2">
+                    <button onclick="quickAddRelay('relay.damus.io')" class="text-left p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <p class="font-mono text-sm text-gray-900 dark:text-white">wss://relay.damus.io</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Damus - Popular e rápido</p>
+                    </button>
+
+                    <button onclick="quickAddRelay('nos.lol')" class="text-left p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <p class="font-mono text-sm text-gray-900 dark:text-white">wss://nos.lol</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">nos.lol - Alta disponibilidade</p>
+                    </button>
+
+                    <button onclick="quickAddRelay('relay.nostr.band')" class="text-left p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <p class="font-mono text-sm text-gray-900 dark:text-white">wss://relay.nostr.band</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Nostr.band - Indexador</p>
+                    </button>
+
+                    <button onclick="quickAddRelay('relay.snort.social')" class="text-left p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <p class="font-mono text-sm text-gray-900 dark:text-white">wss://relay.snort.social</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Snort - Cliente web popular</p>
+                    </button>
+                </div>
+            </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+        <!-- Chats -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Chats</span>
+        </button>
+
+        <!-- Grupos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Grupos</span>
+        </button>
+
+        <!-- Contatos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Contatos</span>
+        </button>
+
+        <!-- Configurações -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Config</span>
+        </button>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Botões ativos da navegação */
+.tab-btn.active {
+    color: #FFC107;
+}
+
+.tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+
+html.dark .tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+
+/* Status dots */
+.status-green {
+    background-color: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.status-yellow {
+    background-color: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.status-red {
+    background-color: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.status-gray {
+    background-color: #9ca3af;
+}
+</style>
+
+<script>
+// Carregar relays salvos
+let relays = [];
+const MAX_RELAYS = 11;
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadRelays();
+    testDefaultRelay();
+});
+
+function loadRelays() {
+    const saved = localStorage.getItem('liberchat_relays');
+    relays = saved ? JSON.parse(saved) : [];
+    renderRelays();
+    updateRelayCount();
+}
+
+function saveRelays() {
+    localStorage.setItem('liberchat_relays', JSON.stringify(relays));
+}
+
+function updateRelayCount() {
+    // +1 para incluir o relay principal
+    document.getElementById('relayCount').textContent = `${relays.length + 1}/${MAX_RELAYS + 1}`;
+
+    // Desabilitar botão se atingiu limite
+    const addBtn = document.getElementById('addRelayBtn');
+    if (relays.length >= MAX_RELAYS) {
+        addBtn.disabled = true;
+        addBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        addBtn.classList.remove('hover:bg-yellow-600');
+    } else {
+        addBtn.disabled = false;
+        addBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        addBtn.classList.add('hover:bg-yellow-600');
+    }
+}
+
+function addRelay() {
+    const input = document.getElementById('newRelayInput');
+    let url = input.value.trim();
+
+    if (!url) {
+        alert('Digite o endereço do relay');
+        return;
+    }
+
+    // Adicionar wss:// se não tiver
+    if (!url.startsWith('wss://') && !url.startsWith('ws://')) {
+        url = 'wss://' + url;
+    }
+
+    // Validar URL
+    try {
+        new URL(url);
+    } catch (e) {
+        alert('URL inválida. Use o formato: relay.exemplo.com');
+        return;
+    }
+
+    // Verificar se já existe
+    if (url === 'wss://relay.libernet.app') {
+        alert('Este é o relay padrão, já está ativo.');
+        return;
+    }
+
+    if (relays.some(r => r.url === url)) {
+        alert('Este relay já foi adicionado.');
+        return;
+    }
+
+    // Verificar limite
+    if (relays.length >= MAX_RELAYS) {
+        alert(`Limite máximo de ${MAX_RELAYS} relays atingido.`);
+        return;
+    }
+
+    // Adicionar
+    const relay = {
+        url: url,
+        status: 'checking',
+        statusText: 'Verificando...',
+        id: Date.now()
+    };
+
+    relays.push(relay);
+    saveRelays();
+    renderRelays();
+    updateRelayCount();
+
+    // Limpar input
+    input.value = '';
+
+    // Testar conexão
+    setTimeout(() => {
+        testRelay(url, `status-${relay.id}`, `statusText-${relay.id}`);
+    }, 500);
+}
+
+function quickAddRelay(domain) {
+    const input = document.getElementById('newRelayInput');
+    input.value = domain;
+    addRelay();
+}
+
+function removeRelay(id) {
+    const relay = relays.find(r => r.id === id);
+    if (relay && confirm(`Remover relay?\n\n${relay.url}`)) {
+        relays = relays.filter(r => r.id !== id);
+        saveRelays();
+        renderRelays();
+        updateRelayCount();
+    }
+}
+
+function renderRelays() {
+    const container = document.getElementById('relaysList');
+
+    // Relay principal (sempre presente)
+    const defaultRelayHTML = `
+        <div class="flex items-center gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/10">
+            <div class="flex-shrink-0">
+                <div id="defaultRelayStatus" class="w-3 h-3 rounded-full status-gray animate-pulse"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-mono text-sm text-gray-900 dark:text-white mb-1">wss://relay.libernet.app</p>
+                <p id="defaultRelayStatusText" class="text-xs text-gray-500 dark:text-gray-400">Verificando...</p>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    onclick="testRelay('wss://relay.libernet.app', 'defaultRelayStatus', 'defaultRelayStatusText')"
+                    class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black rounded text-xs font-medium transition-colors"
+                >
+                    Testar
+                </button>
+                <button
+                    disabled
+                    class="p-1.5 bg-gray-300 dark:bg-gray-700 rounded text-white opacity-50 cursor-not-allowed"
+                    title="Relay principal não pode ser removido"
+                >
+                    <img src="/static/icons/trash.svg" class="w-4 h-4 brightness-0 invert" alt="">
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Relays adicionais
+    const additionalRelaysHTML = relays.map(relay => `
+        <div class="flex items-center gap-3 p-4">
+            <div class="flex-shrink-0">
+                <div id="status-${relay.id}" class="w-3 h-3 rounded-full status-gray"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-mono text-sm truncate text-gray-900 dark:text-white">${relay.url}</p>
+                <p id="statusText-${relay.id}" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Verificando...</p>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    onclick="testRelay('${relay.url}', 'status-${relay.id}', 'statusText-${relay.id}')"
+                    class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded text-xs font-medium transition-colors"
+                >
+                    Testar
+                </button>
+                <button
+                    onclick="removeRelay(${relay.id})"
+                    class="p-1.5 bg-red-500 hover:bg-red-600 rounded text-white transition-colors"
+                    title="Remover"
+                >
+                    <img src="/static/icons/trash.svg" class="w-4 h-4 brightness-0 invert" alt="">
+                </button>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = defaultRelayHTML + additionalRelaysHTML;
+
+    // Testar relays após renderizar
+    relays.forEach(relay => {
+        setTimeout(() => {
+            testRelay(relay.url, `status-${relay.id}`, `statusText-${relay.id}`);
+        }, 500);
+    });
+}
+
+// Testar relay padrão ao carregar
+function testDefaultRelay() {
+    setTimeout(() => {
+        testRelay('wss://relay.libernet.app', 'defaultRelayStatus', 'defaultRelayStatusText');
+    }, 1000);
+}
+
+// Testar conexão com relay
+function testRelay(url, statusElementId, textElementId) {
+    const statusEl = document.getElementById(statusElementId);
+    const textEl = document.getElementById(textElementId);
+
+    // Iniciar teste
+    statusEl.className = 'w-3 h-3 rounded-full status-gray animate-pulse';
+    textEl.textContent = 'Testando...';
+
+    let ws;
+    let timeout;
+    const startTime = Date.now();
+
+    try {
+        ws = new WebSocket(url);
+
+        // Timeout de 10 segundos
+        timeout = setTimeout(() => {
+            ws.close();
+            statusEl.className = 'w-3 h-3 rounded-full status-yellow';
+            textEl.textContent = 'Lento ou sem resposta';
+        }, 10000);
+
+        ws.onopen = () => {
+            clearTimeout(timeout);
+            const latency = Date.now() - startTime;
+
+            ws.close();
+
+            // Verde: < 1s, Amarelo: 1-3s, Vermelho: > 3s
+            if (latency < 1000) {
+                statusEl.className = 'w-3 h-3 rounded-full status-green';
+                textEl.textContent = `Conectado (${latency}ms)`;
+            } else if (latency < 3000) {
+                statusEl.className = 'w-3 h-3 rounded-full status-yellow';
+                textEl.textContent = `Conectado, mas lento (${latency}ms)`;
+            } else {
+                statusEl.className = 'w-3 h-3 rounded-full status-yellow';
+                textEl.textContent = `Muito lento (${latency}ms)`;
+            }
+        };
+
+        ws.onerror = () => {
+            clearTimeout(timeout);
+            statusEl.className = 'w-3 h-3 rounded-full status-red';
+            textEl.textContent = 'Erro de conexão';
+        };
+
+        ws.onclose = (event) => {
+            if (!event.wasClean) {
+                clearTimeout(timeout);
+                statusEl.className = 'w-3 h-3 rounded-full status-red';
+                textEl.textContent = 'Conexão fechada inesperadamente';
+            }
+        };
+
+    } catch (error) {
+        clearTimeout(timeout);
+        statusEl.className = 'w-3 h-3 rounded-full status-red';
+        textEl.textContent = 'Erro: ' + error.message;
+    }
+}
+
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    setTimeout(() => window.location.reload(), 500);
+});
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

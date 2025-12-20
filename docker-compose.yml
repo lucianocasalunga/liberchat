@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  liberchat:
+    build: .
+    container_name: liberchat
+    restart: unless-stopped
+    ports:
+      - "5052:5052"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=liberchat
+      - DB_USER=liberchat
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./:/app
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - liberchat_network
+    command: gunicorn --bind 0.0.0.0:5052 --workers 2 --timeout 120 --log-level info app:app
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: liberchat-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=liberchat
+      - POSTGRES_USER=liberchat
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - liberchat_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: liberchat-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - liberchat_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  liberchat_network:
+    driver: bridge

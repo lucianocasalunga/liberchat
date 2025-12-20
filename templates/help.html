@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajuda - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-gradient-to-r from-purple-600/95 to-indigo-600/95 backdrop-blur-md text-white">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='/chat'" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                    <img src="{{ url_for('static', filename='icons/arrow-left.svg') }}" alt="Voltar" class="w-6 h-6 brightness-0 invert">
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold">Ajuda</h1>
+                    <p class="text-sm text-purple-100">Tire suas dúvidas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+        <!-- Fale com a Sofia -->
+        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
+            <div class="flex items-start gap-3 mb-3">
+                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <img src="{{ url_for('static', filename='icons/zap.svg') }}" alt="" class="w-6 h-6 brightness-0 invert">
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-purple-900 dark:text-purple-100 mb-1">Fale com a Sofia</h3>
+                    <p class="text-sm text-purple-800 dark:text-purple-200 mb-3">
+                        Assistente virtual da LiberNet. Tire dúvidas técnicas, reporte bugs ou peça ajuda em tempo real.
+                    </p>
+                    <a href="https://libernet.app/sofia" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <img src="{{ url_for('static', filename='icons/message-circle.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
+                        <span>Abrir Chat com Sofia</span>
+                        <img src="{{ url_for('static', filename='icons/external-link.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perguntas Frequentes -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-2">
+                    <img src="{{ url_for('static', filename='icons/help-circle.svg') }}" alt="" class="w-5 h-5 dark:invert">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Perguntas Frequentes</h2>
+                </div>
+            </div>
+
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <!-- FAQ 1 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">O que é o LiberChat?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            LiberChat é um cliente de mensagens descentralizado baseado no protocolo Nostr. Diferente de apps tradicionais como WhatsApp ou Telegram, aqui você controla suas próprias chaves e dados. Sem censura, sem vigilância, sem servidores centrais controlando sua comunicação.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">Como funciona o Nostr?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Nostr (Notes and Other Stuff Transmitted by Relays) é um protocolo simples e aberto para comunicação descentralizada.
+                        </p>
+                        <ul class="text-sm text-gray-700 dark:text-gray-300 list-disc list-inside space-y-1">
+                            <li>Você tem um par de chaves (pública e privada)</li>
+                            <li>Suas mensagens são assinadas com sua chave privada</li>
+                            <li>Relays retransmitem suas mensagens pela rede</li>
+                            <li>Você pode se conectar a múltiplos relays</li>
+                            <li>Ninguém pode te censurar ou banir da rede</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">O que é NIP-05?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            NIP-05 é um sistema de verificação de identidade que permite associar seu nome de usuário Nostr a um domínio, como um e-mail.
+                        </p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Exemplo: <span class="font-mono text-purple-600 dark:text-purple-400">seu_nome@libernet.app</span>
+                        </p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                            Isso facilita encontrar você na rede e adiciona um selo de verificação ao seu perfil.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">Perdi minha chave privada (nsec), o que fazer?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-2">
+                            <p class="text-sm text-red-800 dark:text-red-300 font-semibold mb-2">
+                                ⚠️ Infelizmente, não há como recuperar sua conta.
+                            </p>
+                            <p class="text-sm text-red-700 dark:text-red-400">
+                                No Nostr não existem servidores centrais ou recuperação de senha. Se você perdeu sua nsec, você perdeu acesso permanente à sua identidade.
+                            </p>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Você precisará criar uma nova conta com novas chaves. Por isso é fundamental fazer backup da sua nsec em local seguro!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">Como adicionar contatos?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Para adicionar um contato, você precisa da chave pública dele (npub ou hex). Há três formas:
+                        </p>
+                        <ol class="text-sm text-gray-700 dark:text-gray-300 list-decimal list-inside space-y-1">
+                            <li>Peça o <strong>npub</strong> da pessoa</li>
+                            <li>Peça o <strong>NIP-05</strong> dela (nome@dominio.com)</li>
+                            <li>Busque pelo <strong>nome de usuário</strong> nos relays</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- FAQ 6 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">O que são Relays?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Relays são servidores simples que retransmitem mensagens na rede Nostr. Eles são como "correios" que entregam suas mensagens.
+                        </p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Você pode se conectar a quantos relays quiser. Quanto mais relays, mais descentralizado e resiliente fica o sistema. Se um relay cai, seus outros relays continuam funcionando.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 7 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">LiberChat é gratuito?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Sim! LiberChat é 100% gratuito e open source. Você pode:
+                        </p>
+                        <ul class="text-sm text-gray-700 dark:text-gray-300 list-disc list-inside space-y-1">
+                            <li>Usar sem pagar nada</li>
+                            <li>Ver o código fonte completo</li>
+                            <li>Hospedar sua própria instância</li>
+                            <li>Contribuir com melhorias</li>
+                        </ul>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                            Se quiser apoiar o projeto, você pode fazer doações via Lightning Network.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 8 -->
+                <div class="faq-item">
+                    <button onclick="toggleFaq(this)" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <span class="font-medium text-gray-900 dark:text-white pr-4">Minhas mensagens são privadas?</span>
+                        <img src="{{ url_for('static', filename='icons/chevron-right.svg') }}" class="w-5 h-5 dark:invert transform transition-transform faq-arrow" alt="">
+                    </button>
+                    <div class="faq-answer hidden px-4 pb-4">
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            <strong>Mensagens privadas (DMs):</strong> São criptografadas de ponta a ponta usando NIP-04. Apenas você e o destinatário podem ler.
+                        </p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            <strong>Mensagens públicas:</strong> São visíveis para todos na rede, como posts em redes sociais.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contato -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-2">
+                    <img src="{{ url_for('static', filename='icons/send.svg') }}" alt="" class="w-5 h-5 dark:invert">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Entre em Contato</h2>
+                </div>
+            </div>
+            <div class="p-4">
+                <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">
+                    Não encontrou a resposta que procurava? Entre em contato conosco:
+                </p>
+                <div class="space-y-3">
+                    <a href="mailto:contato@libernet.app" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <img src="{{ url_for('static', filename='icons/mail.svg') }}" alt="" class="w-5 h-5 dark:invert">
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">E-mail</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">contato@libernet.app</p>
+                        </div>
+                    </a>
+                    <a href="mailto:suporte@libernet.app" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <img src="{{ url_for('static', filename='icons/help-circle.svg') }}" alt="" class="w-5 h-5 dark:invert">
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">Suporte</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">suporte@libernet.app</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+            <!-- Chats -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/message-circle.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Chats</span>
+            </button>
+
+            <!-- Grupos -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/users-round.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Grupos</span>
+            </button>
+
+            <!-- Contatos -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/users.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Contatos</span>
+            </button>
+
+            <!-- Configurações -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/settings.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Config</span>
+            </button>
+        </div>
+    </div>
+    </nav>
+
+<script>
+// Toggle FAQ
+function toggleFaq(button) {
+    const faqItem = button.closest('.faq-item');
+    const answer = faqItem.querySelector('.faq-answer');
+    const arrow = button.querySelector('.faq-arrow');
+
+    // Toggle answer
+    answer.classList.toggle('hidden');
+
+    // Rotate arrow
+    if (answer.classList.contains('hidden')) {
+        arrow.style.transform = 'rotate(0deg)';
+    } else {
+        arrow.style.transform = 'rotate(90deg)';
+    }
+}
+
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    setTimeout(() => window.location.reload(), 500);
+});
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

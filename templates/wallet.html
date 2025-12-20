@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteira Lightning - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='/chat'" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="/static/icons/wallet.svg" class="w-6 h-6 dark:invert" alt="">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="wallet.title">Carteira Lightning</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+        <!-- Info sobre NWC -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="flex gap-3">
+                <img src="/static/icons/info.svg" class="w-5 h-5 text-blue-600 dark:invert flex-shrink-0 mt-0.5" alt="">
+                <div>
+                    <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-1">O que é Nostr Wallet Connect?</h3>
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                        NWC (NIP-47) permite conectar sua carteira ao LiberChat para enviar e receber zaps automaticamente, sem aprovar cada pagamento.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alby - Recomendada -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-yellow-500 overflow-hidden">
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Alby</h2>
+                            <span class="inline-flex items-center gap-1 bg-yellow-500 text-black text-xs font-semibold px-2 py-1 rounded">
+                                <img src="/static/icons/star.svg" class="w-3 h-3 brightness-0" alt="">
+                                Recomendada
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            A carteira mais integrada com Nostr. Ideal para quem quer facilidade e recursos avançados.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Suporta NWC (Nostr Wallet Connect)</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Extensão de navegador + App mobile (Alby Go)</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Lightning Address: nome@getalby.com</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Zaps automáticos sem fricção</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4 py-2 px-3 bg-gray-50 dark:bg-gray-900 rounded">
+                    <img src="/static/icons/info.svg" class="w-3.5 h-3.5 dark:invert" alt="">
+                    <span><strong>Tipo:</strong> Custodial (eles guardam as chaves)</span>
+                </div>
+
+                <a href="https://getalby.com" target="_blank" class="block w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                    Criar Conta na Alby
+                    <img src="/static/icons/external-link.svg" class="w-4 h-4 inline-block ml-1 brightness-0" alt="">
+                </a>
+            </div>
+        </div>
+
+        <!-- Phoenix -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Phoenix</h2>
+                            <span class="inline-flex items-center gap-1 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                                <img src="/static/icons/lock.svg" class="w-3 h-3 brightness-0 invert" alt="">
+                                Auto-Custódia
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Carteira auto-custódia da ACINQ. Você controla suas chaves, simplicidade garantida.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Você controla suas chaves privadas</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>App mobile excelente (iOS/Android)</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Gerencia complexidade automaticamente</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Muito confiável e popular</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4 py-2 px-3 bg-gray-50 dark:bg-gray-900 rounded">
+                    <img src="/static/icons/shield.svg" class="w-3.5 h-3.5" alt="">
+                    <span><strong>Tipo:</strong> Self-Custodial (você controla)</span>
+                </div>
+
+                <a href="https://phoenix.acinq.co" target="_blank" class="block w-full bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                    Baixar Phoenix
+                    <img src="/static/icons/external-link.svg" class="w-4 h-4 inline-block ml-1 brightness-0 invert" alt="">
+                </a>
+            </div>
+        </div>
+
+        <!-- Mutiny -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Mutiny</h2>
+                            <span class="inline-flex items-center gap-1 bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                                <img src="/static/icons/zap.svg" class="w-3 h-3 brightness-0 invert" alt="">
+                                Inovadora
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            PWA inovadora com node Lightning no navegador. Open source e auto-custódia.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Auto-custódia + Open Source</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Suporta NWC (Nostr Wallet Connect)</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Funciona direto no navegador (PWA)</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-yellow-700 dark:text-yellow-400">
+                        <img src="/static/icons/alert-circle.svg" class="w-4 h-4 flex-shrink-0" alt="">
+                        <span>Ainda em beta (use com cautela)</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4 py-2 px-3 bg-gray-50 dark:bg-gray-900 rounded">
+                    <img src="/static/icons/shield.svg" class="w-3.5 h-3.5" alt="">
+                    <span><strong>Tipo:</strong> Self-Custodial (você controla)</span>
+                </div>
+
+                <a href="https://app.mutinywallet.com" target="_blank" class="block w-full bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                    Experimentar Mutiny
+                    <img src="/static/icons/external-link.svg" class="w-4 h-4 inline-block ml-1 brightness-0 invert" alt="">
+                </a>
+            </div>
+        </div>
+
+        <!-- Blink -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Blink</h2>
+                            <span class="inline-flex items-center gap-1 bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                                <img src="/static/icons/smile.svg" class="w-3 h-3 brightness-0 invert" alt="">
+                                Simples
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Anteriormente Bitcoin Beach Wallet. Uma das carteiras mais simples do mercado.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Interface super simples</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Ideal para iniciantes</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>App mobile rápido</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <img src="/static/icons/check.svg" class="w-4 h-4 text-green-600 dark:invert flex-shrink-0" alt="">
+                        <span>Lightning Address incluído</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4 py-2 px-3 bg-gray-50 dark:bg-gray-900 rounded">
+                    <img src="/static/icons/info.svg" class="w-3.5 h-3.5 dark:invert" alt="">
+                    <span><strong>Tipo:</strong> Custodial (facilidade máxima)</span>
+                </div>
+
+                <a href="https://www.blink.sv" target="_blank" class="block w-full bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                    Baixar Blink
+                    <img src="/static/icons/external-link.svg" class="w-4 h-4 inline-block ml-1 brightness-0 invert" alt="">
+                </a>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <img src="/static/icons/help-circle.svg" class="w-5 h-5 dark:invert" alt="">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Perguntas Frequentes</h2>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 text-sm">Qual carteira devo escolher?</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <strong>Para uso com Nostr:</strong> Alby (melhor integração)<br>
+                        <strong>Para máxima segurança:</strong> Phoenix ou Mutiny (auto-custódia)<br>
+                        <strong>Para simplicidade:</strong> Blink
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 text-sm">O que significa "custodial"?</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Significa que a empresa guarda suas chaves. É mais fácil, mas você não tem controle total. Para pequenas quantidades, é aceitável.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 text-sm">Por que NWC é importante?</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Com NWC, o LiberChat pode enviar/receber zaps automaticamente sem você precisar aprovar cada pagamento. Muito mais prático!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+            <!-- Chats -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Chats</span>
+            </button>
+
+            <!-- Grupos -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Grupos</span>
+            </button>
+
+            <!-- Contatos -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Contatos</span>
+            </button>
+
+            <!-- Configurações -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Config</span>
+            </button>
+        </div>
+    </div>
+    </nav>
+
+<script>
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+// Atualizar página quando idioma mudar
+window.addEventListener("languageChanged", () => {
+    setTimeout(() => window.location.reload(), 500);
+});
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

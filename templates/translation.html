@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="translation.title">Tradução - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-gradient-to-r from-purple-600/95 to-indigo-600/95 backdrop-blur-md text-white">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='/chat'" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                    <img src="{{ url_for('static', filename='icons/arrow-left.svg') }}" alt="Voltar" class="w-6 h-6 brightness-0 invert">
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold" data-i18n="translation.title">Tradução</h1>
+                    <p class="text-sm text-purple-100" data-i18n="translation.subtitle">Idioma e tradução de mensagens</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+        <!-- Idioma da Interface -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700">
+                <h2 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <img src="{{ url_for('static', filename='icons/languages.svg') }}" alt="" class="w-5 h-5 dark:invert">
+                    <span data-i18n="translation.interface_language">Idioma da Interface</span>
+                </h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" data-i18n="translation.interface_language_subtitle">
+                    Idioma dos menus, botões e textos do app
+                </p>
+            </div>
+
+            <!-- Idioma Atual -->
+            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 border-b border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1" data-i18n="translation.current_language">
+                            Idioma atual
+                        </p>
+                        <p class="font-medium text-gray-900 dark:text-white" id="currentLanguageDisplay">
+                            🇧🇷 Português (Brasil)
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl">
+                        <span id="currentLanguageFlag">🇧🇷</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Idiomas Disponíveis -->
+            <div class="p-4">
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3" data-i18n="translation.available_languages">
+                    Idiomas Disponíveis
+                </h3>
+                <div class="space-y-2" id="availableLanguagesList">
+                    <!-- Será preenchido via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Em Breve -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-900/50">
+                <div class="flex items-center gap-2 mb-3">
+                    <img src="{{ url_for('static', filename='icons/clock.svg') }}" alt="" class="w-4 h-4 text-gray-400 dark:invert">
+                    <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400" data-i18n="translation.coming_soon">
+                        Em breve
+                    </h3>
+                </div>
+                <div class="space-y-2" id="comingSoonLanguagesList">
+                    <!-- Será preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tradução de Mensagens (Premium) -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700">
+                <h2 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <img src="{{ url_for('static', filename='icons/globe.svg') }}" alt="" class="w-5 h-5 dark:invert">
+                    <span data-i18n="translation.message_translation">Tradução de Mensagens</span>
+                </h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" data-i18n="translation.message_translation_subtitle">
+                    Traduzir mensagens automaticamente (requer plano pago)
+                </p>
+            </div>
+
+            <!-- Upgrade Required -->
+            <div class="p-4">
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <img src="{{ url_for('static', filename='icons/crown.svg') }}" alt="" class="w-6 h-6 brightness-0 invert">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-1" data-i18n="translation.upgrade_required">
+                                Recurso Premium
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300" data-i18n="translation.upgrade_required_text">
+                                A tradução automática de mensagens está disponível apenas para usuários com plano pago.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Opções Disabled -->
+                    <div class="space-y-3 mb-4 opacity-50">
+                        <label class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg cursor-not-allowed">
+                            <input type="radio" name="translateMode" disabled class="w-4 h-4 text-purple-600">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900 dark:text-white text-sm" data-i18n="translation.auto_translate">
+                                    Tradução Automática
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="translation.auto_translate_subtitle">
+                                    Traduzir todas as mensagens automaticamente
+                                </p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg cursor-not-allowed">
+                            <input type="radio" name="translateMode" disabled class="w-4 h-4 text-purple-600">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900 dark:text-white text-sm" data-i18n="translation.manual_translate">
+                                    Tradução Manual
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="translation.manual_translate_subtitle">
+                                    Traduzir apenas ao clicar no botão
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all" data-i18n="translation.upgrade_button">
+                        Ver Planos
+                    </button>
+                </div>
+
+                <!-- Powered by -->
+                <div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                    <img src="{{ url_for('static', filename='icons/info.svg') }}" alt="" class="w-3.5 h-3.5 dark:invert">
+                    <span data-i18n="translation.powered_by">Tradução powered by Google Translate</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Renderiza lista de idiomas disponíveis
+        function renderLanguages() {
+            const languages = i18n.getAvailableLanguages();
+            const currentLang = i18n.getCurrentLanguage();
+
+            // Lista de disponíveis
+            const availableList = document.getElementById('availableLanguagesList');
+            const available = languages.filter(l => l.available);
+
+            availableList.innerHTML = available.map(lang => `
+                <button
+                    onclick="changeLanguage('${lang.code}')"
+                    class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${lang.code === currentLang ? 'bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-600' : ''}"
+                >
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${lang.flag}</span>
+                        <span class="font-medium text-gray-900 dark:text-white">${lang.name}</span>
+                    </div>
+                    ${lang.code === currentLang ? `
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-purple-600 dark:text-purple-400 font-medium">Atual</span>
+                            <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    ` : ''}
+                </button>
+            `).join('');
+
+            // Lista de em breve
+            const comingSoonList = document.getElementById('comingSoonLanguagesList');
+            const comingSoon = languages.filter(l => !l.available);
+
+            comingSoonList.innerHTML = comingSoon.map(lang => `
+                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800 opacity-60 cursor-not-allowed">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl grayscale">${lang.flag}</span>
+                        <span class="font-medium text-gray-600 dark:text-gray-400">${lang.name}</span>
+                    </div>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">Em breve</span>
+                </div>
+            `).join('');
+
+            // Atualiza display do idioma atual
+            const currentLangData = languages.find(l => l.code === currentLang);
+            if (currentLangData) {
+                document.getElementById('currentLanguageDisplay').textContent = `${currentLangData.flag} ${currentLangData.name}`;
+                document.getElementById('currentLanguageFlag').textContent = currentLangData.flag;
+            }
+        }
+
+        // Troca idioma
+        async function changeLanguage(langCode) {
+            const success = await i18n.changeLanguage(langCode);
+            if (success) {
+                renderLanguages();
+
+                // Mostra feedback
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="flex items-center justify-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Aplicando...</span></div>';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 500);
+            }
+        }
+
+        // Inicializa quando i18n estiver pronto
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                renderLanguages();
+            }, 100);
+        });
+
+        // Atualiza quando idioma mudar
+        window.addEventListener('languageChanged', () => {
+            renderLanguages();
+        });
+    </script>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+            <!-- Chats -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/message-circle.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Chats</span>
+            </button>
+
+            <!-- Grupos -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/users-round.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Grupos</span>
+            </button>
+
+            <!-- Contatos -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/users.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Contatos</span>
+            </button>
+
+            <!-- Configurações -->
+            <button
+                onclick="window.location.href='/chat'"
+                class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            >
+                <img src="{{ url_for('static', filename='icons/settings.svg') }}" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Config</span>
+            </button>
+        </div>
+    </div>
+    </nav>
+
+<script>
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

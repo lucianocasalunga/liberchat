@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geral - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="/static/icons/settings.svg" class="w-6 h-6 dark:invert" alt="">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="general.title">Geral</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+            <!-- Seção: Mídia -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/image.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="general.media">Mídia e Arquivos</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.media_subtitle">
+                        Como carregar fotos, vídeos e arquivos
+                    </p>
+                </div>
+
+                <div class="p-4 space-y-4">
+                    <!-- Carregamento automático -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-200" data-i18n="general.auto_download">Carregamento Automático de Mídia</label>
+                        <select
+                            id="autoDownloadSelect"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        >
+                            <option value="always" selected data-i18n="general.auto_download_always">Sempre</option>
+                            <option value="wifi" data-i18n="general.auto_download_wifi">Apenas no Wi-Fi</option>
+                            <option value="never" data-i18n="general.auto_download_never">Nunca</option>
+                        </select>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.auto_download_info">
+                            Controle quando fotos e vídeos são baixados automaticamente
+                        </p>
+                    </div>
+
+                    <!-- Reprodução automática de vídeos -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/play.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="general.autoplay_video">Reprodução Automática de Vídeos</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="general.autoplay_video_subtitle">Iniciar vídeos automaticamente</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoplayToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Compressão de mídia ao enviar -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-200" data-i18n="general.photo_quality">Qualidade ao Enviar Fotos</label>
+                        <select
+                            id="compressionSelect"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        >
+                            <option value="high" data-i18n="general.photo_quality_high">Alta Qualidade (arquivo maior)</option>
+                            <option value="medium" selected data-i18n="general.photo_quality_medium">Qualidade Média (recomendado)</option>
+                            <option value="low" data-i18n="general.photo_quality_low">Comprimida (arquivo menor)</option>
+                        </select>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.photo_quality_info">
+                            Comprimir fotos economiza dados mas reduz qualidade
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Ajustes de Publicação -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/upload.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="general.upload_settings_title">Servidores de Mídia</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.upload_settings_subtitle">
+                        Configure onde seus arquivos serão hospedados
+                    </p>
+                </div>
+
+                <div class="p-4 space-y-4">
+                    <!-- Lista de servidores -->
+                    <div>
+                        <label class="block text-sm font-medium mb-3 text-gray-900 dark:text-gray-200">
+                            Servidores Configurados
+                        </label>
+                        <div id="serversList" class="space-y-2 mb-3">
+                            <!-- Servidores serão inseridos aqui dinamicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Adicionar novo servidor -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <label class="block text-sm font-medium mb-3 text-gray-900 dark:text-gray-200">
+                            Adicionar Novo Servidor
+                        </label>
+
+                        <div class="space-y-3">
+                            <!-- URL -->
+                            <div>
+                                <input
+                                    type="url"
+                                    id="newServerUrl"
+                                    placeholder="https://media.example.com"
+                                    class="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                                >
+                            </div>
+
+                            <!-- Protocolo -->
+                            <div>
+                                <select
+                                    id="newServerProtocol"
+                                    class="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                >
+                                    <option value="libermedia">LiberMedia (Custom)</option>
+                                    <option value="nip96">NIP-96</option>
+                                </select>
+                            </div>
+
+                            <!-- Tipo -->
+                            <div>
+                                <select
+                                    id="newServerType"
+                                    class="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                >
+                                    <option value="primary">Principal</option>
+                                    <option value="backup">Backup</option>
+                                </select>
+                            </div>
+
+                            <!-- Botão adicionar -->
+                            <button
+                                onclick="addMediaServer()"
+                                class="w-full px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Adicionar Servidor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Privacidade e Conteúdo -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/eye-off.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="general.privacy">Privacidade e Conteúdo</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.privacy_subtitle">
+                        O que você vê e quem você bloqueia
+                    </p>
+                </div>
+
+                <div class="p-4 space-y-3">
+                    <!-- Ocultar notas de bloqueados -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/user-x.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="general.hide_blocked">Ocultar Notas de Bloqueados</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="general.hide_blocked_subtitle">Não mostrar mensagens de usuários bloqueados</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="hideBlockedToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Mostrar conteúdo NSFW -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/alert-circle.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="general.nsfw">Mostrar Conteúdo NSFW</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="general.nsfw_subtitle">Exibir conteúdo marcado como sensível (+18)</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="nsfwToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="text-xs text-gray-500 dark:text-gray-400 px-3" data-i18n="general.nsfw_warning">
+                        ⚠️ Conteúdo NSFW pode incluir nudez, violência ou linguagem adulta
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Notificações -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/bell.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="general.notifications">Notificações</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.notifications_subtitle">
+                        Som e vibração
+                    </p>
+                </div>
+
+                <div class="p-4 space-y-3">
+                    <!-- Som de notificação -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/volume-2.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="general.sound">Som de Notificação</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="general.sound_subtitle">Tocar som ao receber mensagens</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="soundToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Vibração -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center gap-3 flex-1">
+                            <img src="/static/icons/smartphone.svg" class="w-5 h-5 dark:invert opacity-70" alt="">
+                            <div>
+                                <p class="font-medium text-sm text-gray-900 dark:text-white" data-i18n="general.vibration">Vibração</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="general.vibration_subtitle">Vibrar ao receber mensagens</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="vibrationToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-yellow-500 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Interface -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/type.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="general.interface">Interface</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.interface_subtitle">
+                        Personalização visual
+                    </p>
+                </div>
+
+                <div class="p-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-200" data-i18n="general.font_size">Tamanho da Fonte</label>
+                    <select
+                        id="fontSizeSelect"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                        <option value="small" data-i18n="general.font_size_small">Pequena</option>
+                        <option value="normal" selected data-i18n="general.font_size_normal">Normal</option>
+                        <option value="large" data-i18n="general.font_size_large">Grande</option>
+                    </select>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="general.font_size_info">
+                        Ajuste o tamanho do texto nas conversas
+                    </p>
+
+                    <!-- Preview -->
+                    <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" data-i18n="general.font_preview">Preview:</p>
+                        <p id="fontPreview" class="text-base text-gray-900 dark:text-white" data-i18n="general.font_example">Esta é uma mensagem de exemplo</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão Reset -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <button
+                    onclick="resetSettings()"
+                    class="w-full p-4 text-red-600 dark:text-red-400 font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2"
+                >
+                    <img src="/static/icons/refresh-cw.svg" class="w-5 h-5 dark:invert" alt="">
+                    <span data-i18n="general.reset">Restaurar Configurações Padrão</span>
+                </button>
+            </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+        <!-- Chats -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.chats">Chats</span>
+        </button>
+
+        <!-- Grupos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.groups">Grupos</span>
+        </button>
+
+        <!-- Contatos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.contacts">Contatos</span>
+        </button>
+
+        <!-- Configurações -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.settings">Config</span>
+        </button>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Botões ativos da navegação */
+.tab-btn.active {
+    color: #FFC107;
+}
+
+.tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+
+html.dark .tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+</style>
+
+<script>
+// Carregar configurações salvas
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    updateFontPreview();
+});
+
+function loadSettings() {
+    // Carregamento de mídia
+    const autoDownload = localStorage.getItem('autoDownload') || 'always';
+    document.getElementById('autoDownloadSelect').value = autoDownload;
+
+    // Reprodução automática
+    const autoplay = localStorage.getItem('autoplay') !== 'false';
+    document.getElementById('autoplayToggle').checked = autoplay;
+
+    // Compressão
+    const compression = localStorage.getItem('compression') || 'medium';
+    document.getElementById('compressionSelect').value = compression;
+
+    // Upload settings
+    const uploadProtocol = localStorage.getItem('uploadProtocol') || 'libermedia';
+    document.getElementById('uploadProtocolSelect').value = uploadProtocol;
+
+    const uploadUrlPrimary = localStorage.getItem('uploadUrlPrimary') || '';
+    document.getElementById('uploadUrlPrimary').value = uploadUrlPrimary;
+
+    const uploadUrlBackup = localStorage.getItem('uploadUrlBackup') || '';
+    document.getElementById('uploadUrlBackup').value = uploadUrlBackup;
+
+    // Ocultar bloqueados
+    const hideBlocked = localStorage.getItem('hideBlocked') !== 'false';
+    document.getElementById('hideBlockedToggle').checked = hideBlocked;
+
+    // NSFW
+    const nsfw = localStorage.getItem('nsfw') === 'true';
+    document.getElementById('nsfwToggle').checked = nsfw;
+
+    // Som
+    const sound = localStorage.getItem('sound') !== 'false';
+    document.getElementById('soundToggle').checked = sound;
+
+    // Vibração
+    const vibration = localStorage.getItem('vibration') !== 'false';
+    document.getElementById('vibrationToggle').checked = vibration;
+
+    // Tamanho da fonte
+    const fontSize = localStorage.getItem('fontSize') || 'normal';
+    document.getElementById('fontSizeSelect').value = fontSize;
+}
+
+// Upload settings
+function saveUploadSettings() {
+    const protocol = document.getElementById('uploadProtocolSelect').value;
+    const urlPrimary = document.getElementById('uploadUrlPrimary').value.trim();
+    const urlBackup = document.getElementById('uploadUrlBackup').value.trim();
+
+    // Validar URL principal
+    if (urlPrimary && !isValidUrl(urlPrimary)) {
+        alert('⚠️ URL principal inválida');
+        return;
+    }
+
+    // Validar URL backup (se fornecida)
+    if (urlBackup && !isValidUrl(urlBackup)) {
+        alert('⚠️ URL de backup inválida');
+        return;
+    }
+
+    // Salvar configurações
+    localStorage.setItem('uploadProtocol', protocol);
+    localStorage.setItem('uploadUrlPrimary', urlPrimary);
+    localStorage.setItem('uploadUrlBackup', urlBackup);
+
+    alert('✓ Configurações de upload salvas com sucesso!');
+}
+
+function isValidUrl(url) {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+// Carregamento de mídia
+document.getElementById('autoDownloadSelect')?.addEventListener('change', function() {
+    localStorage.setItem('autoDownload', this.value);
+
+    const messages = {
+        'always': 'Mídia será baixada automaticamente sempre',
+        'wifi': 'Mídia será baixada apenas quando conectado ao Wi-Fi',
+        'never': 'Você precisará tocar para baixar cada mídia'
+    };
+
+    alert('✓ ' + messages[this.value]);
+});
+
+// Reprodução automática
+document.getElementById('autoplayToggle')?.addEventListener('change', function() {
+    localStorage.setItem('autoplay', this.checked);
+    alert(this.checked ? '✓ Vídeos serão reproduzidos automaticamente' : 'Vídeos não serão reproduzidos automaticamente');
+});
+
+// Compressão
+document.getElementById('compressionSelect')?.addEventListener('change', function() {
+    localStorage.setItem('compression', this.value);
+
+    const messages = {
+        'high': 'Fotos serão enviadas em alta qualidade (arquivos maiores)',
+        'medium': 'Fotos serão enviadas com compressão média (recomendado)',
+        'low': 'Fotos serão comprimidas ao máximo (arquivos menores)'
+    };
+
+    alert('✓ ' + messages[this.value]);
+});
+
+// Ocultar bloqueados
+document.getElementById('hideBlockedToggle')?.addEventListener('change', function() {
+    localStorage.setItem('hideBlocked', this.checked);
+    alert(this.checked ? '✓ Notas de bloqueados serão ocultadas' : 'Notas de bloqueados serão visíveis');
+});
+
+// NSFW
+document.getElementById('nsfwToggle')?.addEventListener('change', function() {
+    if (this.checked) {
+        const confirm = window.confirm('⚠️ ATENÇÃO\n\nVocê está prestes a habilitar conteúdo sensível (+18).\n\nIsso pode incluir nudez, violência ou linguagem adulta.\n\nContinuar?');
+
+        if (confirm) {
+            localStorage.setItem('nsfw', 'true');
+            alert('✓ Conteúdo NSFW será exibido');
+        } else {
+            this.checked = false;
+        }
+    } else {
+        localStorage.setItem('nsfw', 'false');
+        alert('✓ Conteúdo NSFW será ocultado');
+    }
+});
+
+// Som
+document.getElementById('soundToggle')?.addEventListener('change', function() {
+    localStorage.setItem('sound', this.checked);
+    alert(this.checked ? '✓ Som de notificação ativado' : 'Som de notificação desativado');
+});
+
+// Vibração
+document.getElementById('vibrationToggle')?.addEventListener('change', function() {
+    localStorage.setItem('vibration', this.checked);
+
+    if (this.checked && 'vibrate' in navigator) {
+        navigator.vibrate(200);
+    }
+
+    alert(this.checked ? '✓ Vibração ativada' : 'Vibração desativada');
+});
+
+// Tamanho da fonte
+document.getElementById('fontSizeSelect')?.addEventListener('change', function() {
+    localStorage.setItem('fontSize', this.value);
+    updateFontPreview();
+    alert('✓ Tamanho da fonte alterado');
+});
+
+function updateFontPreview() {
+    const fontSize = document.getElementById('fontSizeSelect').value;
+    const preview = document.getElementById('fontPreview');
+
+    const sizes = {
+        'small': '14px',
+        'normal': '16px',
+        'large': '18px'
+    };
+
+    preview.style.fontSize = sizes[fontSize];
+}
+
+// Reset
+function resetSettings() {
+    const confirm = window.confirm('⚠️ Restaurar Configurações Padrão?\n\nTodas as suas preferências serão perdidas.\n\nContinuar?');
+
+    if (confirm) {
+        // Limpar localStorage (apenas configurações, não sessão)
+        const keysToRemove = [
+            'autoDownload', 'autoplay', 'compression',
+            'hideBlocked', 'nsfw', 'sound', 'vibration', 'fontSize'
+        ];
+
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+
+        alert('✓ Configurações restauradas!\n\nRecarregando...');
+        setTimeout(() => window.location.reload(), 1000);
+    }
+}
+
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+
+// Aplicar tema inicial
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    console.log('[GENERAL] Idioma alterado, recarregando página...');
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+});
+
+// ==================== GERENCIAMENTO DE SERVIDORES DE MÍDIA ====================
+
+// Carregar servidores do localStorage
+function loadMediaServers() {
+    const defaultServers = [
+        {
+            url: 'https://media.libernet.app',
+            protocol: 'libermedia',
+            type: 'primary',
+            name: 'LiberMedia'
+        }
+    ];
+
+    let servers = JSON.parse(localStorage.getItem('mediaServers') || 'null');
+
+    if (!servers || servers.length === 0) {
+        servers = defaultServers;
+        localStorage.setItem('mediaServers', JSON.stringify(servers));
+    }
+
+    // Corrigir servidores com protocolo "blossom" antigo (não suportado)
+    let needsUpdate = false;
+    servers = servers.map(server => {
+        if (server.protocol === 'blossom') {
+            needsUpdate = true;
+            return { ...server, protocol: 'libermedia' };
+        }
+        return server;
+    });
+
+    if (needsUpdate) {
+        localStorage.setItem('mediaServers', JSON.stringify(servers));
+        console.log('[SETTINGS] Servidores atualizados: protocolo blossom convertido para libermedia');
+    }
+
+    renderMediaServers(servers);
+}
+
+// Renderizar lista de servidores
+function renderMediaServers(servers) {
+    const container = document.getElementById('serversList');
+
+    if (!servers || servers.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
+                Nenhum servidor configurado
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = servers.map((server, index) => {
+        const isPrimary = server.type === 'primary';
+
+        let protocolBadge = '';
+        if (server.protocol === 'libermedia') {
+            protocolBadge = '<span class="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded">LiberMedia</span>';
+        } else if (server.protocol === 'nip96') {
+            protocolBadge = '<span class="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">NIP-96</span>';
+        }
+
+        const typeBadge = isPrimary
+            ? '<span class="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded font-medium">Principal</span>'
+            : '<span class="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">Backup</span>';
+
+        return `
+            <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        ${typeBadge}
+                        ${protocolBadge}
+                    </div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${server.name || 'Servidor'}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">${server.url}</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    ${!isPrimary ? `
+                        <button
+                            onclick="setServerAsPrimary(${index})"
+                            class="p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            title="Tornar principal"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                        </button>
+                    ` : ''}
+                    <button
+                        onclick="removeMediaServer(${index})"
+                        class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Remover"
+                        ${servers.length === 1 ? 'disabled class="p-2 text-gray-400 dark:text-gray-600 cursor-not-allowed"' : ''}
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Adicionar novo servidor
+function addMediaServer() {
+    const urlInput = document.getElementById('newServerUrl');
+    const protocolSelect = document.getElementById('newServerProtocol');
+    const typeSelect = document.getElementById('newServerType');
+
+    const url = urlInput.value.trim();
+    const protocol = protocolSelect.value;
+    const type = typeSelect.value;
+
+    if (!url) {
+        alert('Por favor, insira a URL do servidor');
+        return;
+    }
+
+    // Validar URL
+    try {
+        new URL(url);
+    } catch (e) {
+        alert('URL inválida! Use o formato: https://servidor.com');
+        return;
+    }
+
+    // Carregar servidores atuais
+    let servers = JSON.parse(localStorage.getItem('mediaServers') || '[]');
+
+    // Se o novo servidor é principal, rebaixar o atual principal para backup
+    if (type === 'primary') {
+        servers = servers.map(s => ({
+            ...s,
+            type: 'backup'
+        }));
+    }
+
+    // Extrair nome do domínio
+    const urlObj = new URL(url);
+    const name = urlObj.hostname;
+
+    // Adicionar novo servidor
+    servers.push({
+        url: url,
+        protocol: protocol,
+        type: type,
+        name: name
+    });
+
+    // Salvar e renderizar
+    localStorage.setItem('mediaServers', JSON.stringify(servers));
+    renderMediaServers(servers);
+
+    // Limpar campos
+    urlInput.value = '';
+    protocolSelect.value = 'libermedia';
+    typeSelect.value = 'backup';
+
+    alert('✓ Servidor adicionado com sucesso!');
+}
+
+// Remover servidor
+function removeMediaServer(index) {
+    let servers = JSON.parse(localStorage.getItem('mediaServers') || '[]');
+
+    if (servers.length === 1) {
+        alert('Você precisa ter pelo menos um servidor configurado!');
+        return;
+    }
+
+    if (!confirm(`Remover servidor ${servers[index].name}?`)) {
+        return;
+    }
+
+    servers.splice(index, 1);
+
+    // Se não houver mais servidor principal, tornar o primeiro como principal
+    const hasPrimary = servers.some(s => s.type === 'primary');
+    if (!hasPrimary && servers.length > 0) {
+        servers[0].type = 'primary';
+    }
+
+    localStorage.setItem('mediaServers', JSON.stringify(servers));
+    renderMediaServers(servers);
+}
+
+// Tornar servidor principal
+function setServerAsPrimary(index) {
+    let servers = JSON.parse(localStorage.getItem('mediaServers') || '[]');
+
+    // Rebaixar todos para backup
+    servers = servers.map(s => ({
+        ...s,
+        type: 'backup'
+    }));
+
+    // Promover servidor selecionado
+    servers[index].type = 'primary';
+
+    localStorage.setItem('mediaServers', JSON.stringify(servers));
+    renderMediaServers(servers);
+
+    alert('✓ Servidor principal alterado!');
+}
+
+// Carregar servidores ao iniciar
+loadMediaServers();
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>

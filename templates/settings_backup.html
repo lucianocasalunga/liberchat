@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações - LiberChat{% endblock %}
+
+{% block content %}
+<div class="h-full w-full bg-gray-50 dark:bg-gray-900 p-4 pb-24 overflow-y-auto">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center mb-6">
+            <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors mr-3">
+                <img src="/static/icons/arrow-left.svg" class="w-6 h-6 dark:invert" alt="Voltar">
+            </button>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configurações</h1>
+        </div>
+
+        <!-- Perfil -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-4">
+            <h2 class="text-xl font-semibold mb-4">Seu Perfil</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Chave Pública (npub)</label>
+                    <input type="text" value="{{ npub }}" readonly
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+            </div>
+        </div>
+
+        <!-- NIP-05 Verification -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-4">
+            <h2 class="text-xl font-semibold mb-4">Verificação NIP-05</h2>
+
+            <!-- Status da verificação -->
+            <div id="nip05Status" class="mb-4"></div>
+
+            <!-- Formulário de solicitação -->
+            <div id="nip05Form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Escolha seu identificador
+                    </label>
+                    <div class="flex gap-2">
+                        <input
+                            type="text"
+                            id="nip05Username"
+                            placeholder="username"
+                            class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 lowercase"
+                            pattern="[a-z0-9_-]+"
+                            maxlength="50"
+                        >
+                        <span class="flex items-center px-4 text-gray-500">@libernet.app</span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Apenas letras minúsculas, números, hífen e underscore (3-50 caracteres)
+                    </p>
+                    <div id="usernameAvailability" class="mt-2 text-sm"></div>
+                </div>
+
+                <button
+                    id="requestNip05Btn"
+                    onclick="requestNip05()"
+                    class="w-full bg-yellow-500 dark:bg-yellow-400 hover:bg-yellow-600 dark:hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    Solicitar Verificação
+                </button>
+            </div>
+        </div>
+
+        <!-- Logout -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg">
+                Sair
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function logout() {
+        if (confirm('Deseja realmente sair?')) {
+            fetch('/api/auth/logout', { method: 'POST' })
+                .then(() => window.location.href = '/');
+        }
+    }
+
+    // Carregar status NIP-05
+    document.addEventListener('DOMContentLoaded', () => {
+        loadNip05Status();
+    });
+
+    // ==================== NIP-05 ====================
+
+    let checkTimeout;
+
+    async function loadNip05Status() {
+        try {
+            const response = await fetch('/api/nip05/status');
+            const data = await response.json();
+
+            const statusDiv = document.getElementById('nip05Status');
+            const formDiv = document.getElementById('nip05Form');
+
+            if (data.has_nip05) {
+                statusDiv.innerHTML = `
+                    <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                            <img src="/static/icons/check.svg" class="w-5 h-5" alt="">
+                            <span class="font-semibold text-green-800 dark:text-green-200">Verificado</span>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Seu identificador: <strong>${data.nip05}</strong>
+                        </p>
+                    </div>
+                `;
+                formDiv.style.display = 'none';
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Tenha um identificador verificado para facilitar que outras pessoas encontrem você.
+                        </p>
+                    </div>
+                `;
+                formDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Erro ao carregar status NIP-05:', error);
+        }
+    }
+
+    // Verificar disponibilidade do username
+    document.getElementById('nip05Username')?.addEventListener('input', (e) => {
+        const username = e.target.value.toLowerCase().trim();
+        const availability = document.getElementById('usernameAvailability');
+        const btn = document.getElementById('requestNip05Btn');
+
+        // Limpar timeout anterior
+        clearTimeout(checkTimeout);
+
+        if (username.length < 3) {
+            availability.textContent = '';
+            btn.disabled = true;
+            return;
+        }
+
+        // Validar formato
+        if (!/^[a-z0-9_-]+$/.test(username)) {
+            availability.innerHTML = '<span class="text-red-600">Username inválido</span>';
+            btn.disabled = true;
+            return;
+        }
+
+        availability.innerHTML = '<span class="text-gray-500">Verificando...</span>';
+
+        // Debounce
+        checkTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/nip05/check?username=${username}`);
+                const data = await response.json();
+
+                if (data.available) {
+                    availability.innerHTML = '<span class="text-green-600">Disponível!</span>';
+                    btn.disabled = false;
+                } else {
+                    availability.innerHTML = '<span class="text-red-600">Já está em uso</span>';
+                    btn.disabled = true;
+                }
+            } catch (error) {
+                availability.innerHTML = '<span class="text-red-600">Erro ao verificar</span>';
+                btn.disabled = true;
+            }
+        }, 500);
+    });
+
+    async function requestNip05() {
+        const username = document.getElementById('nip05Username').value.toLowerCase().trim();
+        const btn = document.getElementById('requestNip05Btn');
+
+        btn.disabled = true;
+        btn.textContent = 'Processando...';
+
+        try {
+            const response = await fetch('/api/nip05/request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username})
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`Verificação concluída!\n\nSeu identificador: ${data.nip05}`);
+                loadNip05Status();
+            } else {
+                alert('Erro: ' + (data.error || 'Falha ao solicitar verificação'));
+                btn.disabled = false;
+                btn.textContent = 'Solicitar Verificação';
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao solicitar verificação');
+            btn.disabled = false;
+            btn.textContent = 'Solicitar Verificação';
+        }
+    }
+</script>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+        <!-- Chats -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Chats</span>
+        </button>
+
+        <!-- Grupos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Grupos</span>
+        </button>
+
+        <!-- Contatos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Contatos</span>
+        </button>
+
+        <!-- Configurações -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none">Config</span>
+        </button>
+        </div>
+    </div>
+</nav>
+
+{% endblock %}

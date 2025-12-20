@@ -1,0 +1,893 @@
+{% extends "base.html" %}
+
+{% block title %}{{ contact.display_name }} - LiberChat{% endblock %}
+
+{% block head %}
+<!-- nostr-tools para dispositivos sem extensão -->
+<script src="https://unpkg.com/nostr-tools@2.1.3/lib/nostr.bundle.js"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Garantir que o container de mensagens seja scrollável */
+    #messagesContainer {
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-y: contain;
+        position: relative;
+        height: 100%;
+    }
+
+    /* Prevenir scroll do body */
+    .chat-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    /* Container principal deve ocupar toda altura */
+    .chat-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<!-- Wrapper centralizado para desktop -->
+<div class="chat-wrapper max-w-3xl mx-auto bg-white dark:bg-gray-800">
+<div class="chat-container bg-gray-50 dark:bg-gray-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-5 flex items-center gap-3" style="padding-top: calc(1.0rem + env(safe-area-inset-top)); padding-bottom: 1.0rem;">
+        <button onclick="window.location.href='/chat'" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <img src="/static/icons/arrow-left.svg" class="w-6 h-6 dark:invert" alt="Voltar">
+        </button>
+
+        <!-- Área clicável do contato -->
+        <div onclick="showContactInfo()" class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30 -mx-2 px-2 py-1 rounded-lg transition-colors">
+            <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                {% if contact.picture %}
+                    <img src="{{ contact.picture }}" class="w-full h-full rounded-full object-cover" alt="{{ contact.display_name }}">
+                {% else %}
+                    <span class="text-lg">{{ contact.display_name[0].upper() }}</span>
+                {% endif %}
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <h1 class="font-semibold text-gray-900 dark:text-white truncate">{{ contact.display_name }}</h1>
+                {% if contact.nip05 %}
+                    <p class="text-xs text-purple-600 dark:text-purple-400 truncate">{{ contact.nip05 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensagens -->
+    <div id="messagesContainer" class="flex-1 p-4 space-y-3 pb-24">
+        <div class="text-center py-10 text-gray-500 dark:text-gray-400">
+            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-4">
+                {% if contact.picture %}
+                    <img src="{{ contact.picture }}" class="w-full h-full rounded-full object-cover" alt="">
+                {% else %}
+                    <span class="text-2xl">{{ contact.display_name[0].upper() }}</span>
+                {% endif %}
+            </div>
+            <p class="text-lg font-medium mb-2 text-gray-900 dark:text-white">{{ contact.display_name }}</p>
+            {% if contact.nip05 %}
+                <p class="text-sm text-purple-600 dark:text-purple-400 mb-2">{{ contact.nip05 }}</p>
+            {% endif %}
+            {% if contact.about %}
+                <p class="text-sm max-w-md mx-auto">{{ contact.about }}</p>
+            {% endif %}
+            <p class="text-sm mt-4">Envie sua primeira mensagem abaixo</p>
+        </div>
+    </div>
+</div>
+</div> <!-- Fecha wrapper centralizado -->
+
+    <!-- Campo de mensagem -->
+    <div class="fixed bottom-0 inset-x-0 max-w-3xl mx-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 z-50" style="padding-bottom: env(safe-area-inset-bottom);">
+        <!-- Indicador de status de envio -->
+        <div id="sendingStatus" class="hidden mb-2 text-xs text-center">
+            <span id="sendingText" class="inline-flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Enviando...
+            </span>
+            <span id="sentText" class="hidden inline-flex items-center gap-1 text-green-600 dark:text-green-400">
+                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Enviado
+            </span>
+        </div>
+
+        <form id="messageForm" class="flex items-center gap-2">
+            <button type="button" onclick="document.getElementById('fileInput').click()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <img src="/static/icons/paperclip.svg" class="w-5 h-5 dark:invert" alt="Anexar">
+            </button>
+            <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt" onchange="handleFileSelect(event)">
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Digite uma mensagem..."
+                class="flex-1 px-4 py-3 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                autocomplete="off"
+            >
+
+            <button type="submit" id="sendButton" class="p-3 bg-yellow-500 hover:bg-yellow-600 rounded-full transition-colors">
+                <img src="/static/icons/send.svg" class="w-5 h-5 brightness-0" alt="Enviar">
+            </button>
+        </form>
+    </div>
+
+<!-- Modal: Pedir nsec para dispositivos sem extensão -->
+<div id="modalNsec" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-t-2xl md:rounded-2xl w-full md:max-w-md md:mx-4 max-h-[90vh] overflow-y-auto" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Chave Privada Necessária</h3>
+            </div>
+
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Seu dispositivo não possui extensão Nostr. Para enviar mensagens, precisamos da sua chave privada (nsec).
+            </p>
+
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
+                <p class="text-xs text-yellow-800 dark:text-yellow-200">
+                    ⚠️ <strong>Atenção:</strong> Sua chave privada será armazenada apenas neste dispositivo. Nunca compartilhe sua nsec com outras pessoas!
+                </p>
+            </div>
+
+            <form id="nsecForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Cole sua chave privada (nsec)
+                    </label>
+                    <input
+                        type="password"
+                        id="nsecInput"
+                        placeholder="nsec1..."
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Info do Contato -->
+<div id="modalContactInfo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-t-2xl md:rounded-2xl w-full md:max-w-md md:mx-4 max-h-[90vh] overflow-y-auto" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Informações</h3>
+                <button onclick="closeContactInfo()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/x.svg" class="w-5 h-5 dark:invert" alt="Fechar">
+                </button>
+            </div>
+
+            <!-- Foto do contato -->
+            <div class="flex justify-center mb-6">
+                <div class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {% if contact.picture %}
+                        <img src="{{ contact.picture }}" class="w-full h-full rounded-full object-cover" alt="{{ contact.display_name }}">
+                    {% else %}
+                        <span class="text-3xl">{{ contact.display_name[0].upper() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Nome e descrição -->
+            <div class="mb-6 text-center">
+                <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ contact.display_name }}</h4>
+                {% if contact.nip05 %}
+                    <p class="text-sm text-purple-600 dark:text-purple-400 mb-2">{{ contact.nip05 }}</p>
+                {% endif %}
+                {% if contact.about %}
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ contact.about }}</p>
+                {% endif %}
+            </div>
+
+            <!-- NPub -->
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">npub</p>
+                <p class="text-xs font-mono text-gray-900 dark:text-white break-all">{{ contact.npub }}</p>
+                <button onclick="copyNpub()" class="mt-2 text-sm text-yellow-600 dark:text-yellow-400 hover:underline">
+                    Copiar npub
+                </button>
+            </div>
+
+            <!-- Ações -->
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button onclick="blockContact()" class="text-sm text-red-600 dark:text-red-400 hover:underline flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                    </svg>
+                    Bloquear contato
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Visualizar Imagem -->
+<div id="imageModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onclick="closeImageModal(event)">
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10">
+        <img src="/static/icons/x.svg" class="w-6 h-6 invert" alt="Fechar">
+    </button>
+    <img id="imageModalImg" src="" class="max-w-full max-h-full object-contain rounded-lg" onclick="event.stopPropagation()" alt="Imagem">
+</div>
+
+<script>
+const contactPubkey = '{{ contact.pubkey }}';
+const contactNpub = '{{ contact.npub }}';
+const myPubkey = '{{ pubkey }}';
+
+function showContactInfo() {
+    document.getElementById('modalContactInfo').classList.remove('hidden');
+}
+
+function closeContactInfo() {
+    document.getElementById('modalContactInfo').classList.add('hidden');
+}
+
+function copyNpub() {
+    navigator.clipboard.writeText(contactNpub).then(() => {
+        alert('npub copiado!');
+    }).catch(err => {
+        console.error('[DM] Erro ao copiar:', err);
+        alert('Erro ao copiar npub');
+    });
+}
+
+function blockContact() {
+    if (confirm('Tem certeza que deseja bloquear este contato?')) {
+        alert('Funcionalidade de bloqueio em desenvolvimento');
+    }
+}
+
+// Abrir modal de imagem
+function openImageModal(imageUrl) {
+    const modal = document.getElementById('imageModal');
+    const img = document.getElementById('imageModalImg');
+    img.src = imageUrl;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevenir scroll do body
+}
+
+// Fechar modal de imagem
+function closeImageModal(event) {
+    if (event && event.target.id !== 'imageModal' && event.target.tagName !== 'BUTTON') {
+        return; // Só fecha se clicar no fundo ou no botão X
+    }
+    const modal = document.getElementById('imageModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = ''; // Restaurar scroll
+}
+
+// Fechar modal com tecla ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Upload de arquivo
+async function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    console.log('[DM] Arquivo selecionado:', file.name, file.size);
+
+    // Mostrar indicador de upload
+    const sendingStatus = document.getElementById('sendingStatus');
+    const sendingText = document.getElementById('sendingText');
+    sendingStatus.classList.remove('hidden');
+    sendingText.innerHTML = `
+        <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Enviando arquivo...
+    `;
+
+    try {
+        // Carregar servidores configurados
+        const servers = JSON.parse(localStorage.getItem('mediaServers') || '[]');
+        const primaryServer = servers.find(s => s.type === 'primary') || servers[0];
+
+        if (!primaryServer) {
+            sendingStatus.classList.add('hidden');
+            alert('Nenhum servidor de mídia configurado! Vá em Configurações > Geral para adicionar um.');
+            return;
+        }
+
+        console.log('[DM] Usando servidor:', primaryServer.url, primaryServer.protocol);
+
+        // Preparar FormData
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Enviar informações do servidor configurado
+        formData.append('server_url', primaryServer.url);
+        formData.append('server_protocol', primaryServer.protocol);
+
+        // Fazer upload através do backend
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'  // Necessário para CORS com credenciais
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'ok') {
+            console.log('[DM] Upload concluído:', result.url);
+
+            // Inserir link no input de mensagem
+            const messageInput = document.getElementById('messageInput');
+            const currentText = messageInput.value.trim();
+            messageInput.value = currentText ? `${currentText} ${result.url}` : result.url;
+            messageInput.focus();
+
+            // Ocultar indicador
+            sendingStatus.classList.add('hidden');
+
+            alert('✓ Arquivo enviado! O link foi inserido na mensagem.');
+        } else {
+            console.error('[DM] Erro no upload:', result.error);
+            sendingStatus.classList.add('hidden');
+            alert(`Erro ao enviar arquivo: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('[DM] Erro ao fazer upload:', error);
+        sendingStatus.classList.add('hidden');
+        alert('Erro ao enviar arquivo. Tente novamente.');
+    }
+
+    // Limpar input file para permitir reenvio do mesmo arquivo
+    event.target.value = '';
+}
+
+// Handler para formulário de nsec
+document.getElementById('nsecForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nsec = document.getElementById('nsecInput').value.trim();
+
+    if (!nsec || !nsec.startsWith('nsec1')) {
+        alert('Chave privada inválida! Deve começar com "nsec1"');
+        return;
+    }
+
+    try {
+        // Validar nsec usando nostr-tools
+        const decoded = NostrTools.nip19.decode(nsec);
+        if (decoded.type !== 'nsec') {
+            throw new Error('Formato inválido');
+        }
+
+        // Salvar no localStorage
+        localStorage.setItem('liberchat_nsec', nsec);
+        document.getElementById('modalNsec').classList.add('hidden');
+
+        // Tentar enviar mensagem novamente
+        const messageForm = document.getElementById('messageForm');
+        const event = new Event('submit');
+        messageForm.dispatchEvent(event);
+    } catch (error) {
+        console.error('[DM] Erro ao validar nsec:', error);
+        alert('Chave privada inválida! Verifique e tente novamente.');
+    }
+});
+
+// Enviar mensagem (com suporte a extensão OU nsec local)
+document.getElementById('messageForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    console.log('[DM] Enviando mensagem:', message);
+    console.log('[DM] Para:', contactPubkey);
+
+    // Verificar se extensão Nostr está disponível ou se temos nsec salvo
+    const hasExtension = !!window.nostr;
+    const savedNsec = localStorage.getItem('liberchat_nsec');
+
+    if (!hasExtension && !savedNsec) {
+        // Pedir nsec
+        document.getElementById('modalNsec').classList.remove('hidden');
+        return;
+    }
+
+    // Desabilitar input enquanto envia
+    input.disabled = true;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    // Mostrar indicador de envio
+    const sendingStatus = document.getElementById('sendingStatus');
+    const sendingText = document.getElementById('sendingText');
+    const sentText = document.getElementById('sentText');
+    sendingStatus.classList.remove('hidden');
+    sendingText.classList.remove('hidden');
+    sentText.classList.add('hidden');
+
+    try {
+        let encryptedContent, signedEvent;
+
+        if (hasExtension) {
+            // Usar extensão Nostr
+            console.log('[DM] Usando extensão Nostr...');
+            encryptedContent = await window.nostr.nip04.encrypt(contactPubkey, message);
+            console.log('[DM] Mensagem criptografada:', encryptedContent.substring(0, 50) + '...');
+
+            const event = {
+                kind: 4,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [['p', contactPubkey]],
+                content: encryptedContent
+            };
+
+            signedEvent = await window.nostr.signEvent(event);
+            console.log('[DM] Evento assinado via extensão:', signedEvent.id);
+        } else {
+            // Usar nostr-tools com nsec local
+            console.log('[DM] Usando nostr-tools...');
+
+            const decoded = NostrTools.nip19.decode(savedNsec);
+            const privateKey = decoded.data;
+
+            // Criptografar mensagem usando NIP-04
+            encryptedContent = await NostrTools.nip04.encrypt(privateKey, contactPubkey, message);
+            console.log('[DM] Mensagem criptografada:', encryptedContent.substring(0, 50) + '...');
+
+            // Criar evento kind 4
+            const eventTemplate = {
+                kind: 4,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [['p', contactPubkey]],
+                content: encryptedContent
+            };
+
+            // Assinar evento (calcula ID e assinatura automaticamente)
+            signedEvent = NostrTools.finalizeEvent(eventTemplate, privateKey);
+            console.log('[DM] Evento assinado com nostr-tools:', signedEvent.id);
+        }
+
+        // Publicar no relay
+        console.log('[DM] Publicando no relay...');
+        const relays = ['wss://relay.libernet.app', 'wss://relay.damus.io', 'wss://nos.lol'];
+
+        let published = false;
+        for (const relayUrl of relays) {
+            try {
+                const ws = new WebSocket(relayUrl);
+
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
+
+                    ws.onopen = () => {
+                        clearTimeout(timeout);
+                        console.log('[DM] Conectado ao relay:', relayUrl);
+                        ws.send(JSON.stringify(['EVENT', signedEvent]));
+                        published = true;
+                        resolve();
+                    };
+
+                    ws.onerror = (error) => {
+                        clearTimeout(timeout);
+                        console.error('[DM] Erro no relay:', relayUrl, error);
+                        reject(error);
+                    };
+
+                    ws.onmessage = (msg) => {
+                        console.log('[DM] Resposta do relay:', msg.data);
+                        ws.close();
+                    };
+                });
+
+                break; // Publicou com sucesso, sair do loop
+            } catch (error) {
+                console.error('[DM] Falha no relay', relayUrl, error);
+                continue; // Tentar próximo relay
+            }
+        }
+
+        if (published) {
+            console.log('[DM] Mensagem publicada com sucesso!');
+
+            // Salvar mensagem no banco de dados local
+            try {
+                const saveResponse = await fetch('/api/dm/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        event_id: signedEvent.id,
+                        recipient_pubkey: contactPubkey,
+                        encrypted_content: encryptedContent,
+                        decrypted_content: message,
+                        created_at: signedEvent.created_at
+                    })
+                });
+                const saveData = await saveResponse.json();
+                console.log('[DM] Mensagem salva no banco:', saveData);
+            } catch (error) {
+                console.error('[DM] Erro ao salvar mensagem local:', error);
+                // Não interromper o fluxo, a mensagem já foi enviada
+            }
+
+            // Adicionar mensagem à tela
+            addMessageToScreen(message, true);
+
+            // Limpar input
+            input.value = '';
+
+            // Mostrar "Enviado" por 2 segundos
+            sendingText.classList.add('hidden');
+            sentText.classList.remove('hidden');
+            setTimeout(() => {
+                sendingStatus.classList.add('hidden');
+            }, 2000);
+        } else {
+            throw new Error('Falha ao publicar em todos os relays');
+        }
+    } catch (error) {
+        console.error('[DM] Erro ao enviar:', error);
+        alert('Erro ao enviar mensagem: ' + error.message);
+        // Ocultar indicador em caso de erro
+        sendingStatus.classList.add('hidden');
+    } finally {
+        input.disabled = false;
+        submitBtn.disabled = false;
+        input.focus();
+    }
+});
+
+// Carregar mensagens do banco de dados
+async function loadMessages() {
+    try {
+        console.log('[DM] Carregando mensagens...');
+
+        const response = await fetch(`/api/messages?contact_pubkey=${contactPubkey}`);
+        const data = await response.json();
+
+        if (data.status === 'ok') {
+            console.log('[DM] Mensagens carregadas:', data.messages.length);
+            displayMessages(data.messages);
+
+            // Salvar timestamp da última mensagem para polling
+            if (data.messages.length > 0) {
+                const latestMessage = data.messages[data.messages.length - 1];
+                lastMessageTimestamp = latestMessage.created_at;
+                console.log('[DM] Último timestamp:', lastMessageTimestamp);
+            }
+        } else {
+            console.error('[DM] Erro ao carregar mensagens:', data.error);
+        }
+    } catch (error) {
+        console.error('[DM] Erro ao carregar mensagens:', error);
+    }
+}
+
+// Exibir mensagens na tela
+function displayMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+
+    if (messages.length === 0) {
+        // Manter mensagem de boas-vindas se não houver mensagens
+        return;
+    }
+
+    // Limpar container
+    container.innerHTML = '';
+
+    messages.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex ${msg.is_mine ? 'justify-end' : 'justify-start'} mb-3`;
+
+        const bubble = document.createElement('div');
+        bubble.className = `max-w-[70%] rounded-lg px-4 py-2 ${
+            msg.is_mine
+                ? 'bg-yellow-500 text-black'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+        }`;
+
+        const text = document.createElement('div');
+        text.className = 'text-sm break-words';
+        text.innerHTML = processMessageContent(msg.decrypted_content, msg.is_mine) || '[Mensagem criptografada]';
+
+        const time = document.createElement('p');
+        time.className = `text-xs mt-1 ${msg.is_mine ? 'text-black/70' : 'text-gray-500 dark:text-gray-400'}`;
+        time.textContent = formatTime(msg.created_at);
+
+        bubble.appendChild(text);
+        bubble.appendChild(time);
+        messageDiv.appendChild(bubble);
+        container.appendChild(messageDiv);
+    });
+
+    // Scroll para o final (com timeout para garantir que renderizou)
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 100);
+}
+
+// Processar conteúdo da mensagem para renderizar imagens e links
+function processMessageContent(content, isMine = false) {
+    if (!content) return '';
+
+    // Escapar HTML primeiro
+    const div = document.createElement('div');
+    div.textContent = content;
+    let escaped = div.innerHTML;
+
+    // Regex para detectar URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+    // Cor do link baseada no fundo da mensagem
+    const linkColor = isMine
+        ? 'text-blue-900 hover:text-blue-950'  // Azul escuro para fundo amarelo
+        : 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300';  // Azul claro para fundos claros/escuros
+
+    escaped = escaped.replace(urlRegex, (url) => {
+        // Remover pontuação do final se houver
+        const cleanUrl = url.replace(/[.,;!?]+$/, '');
+        const punctuation = url.slice(cleanUrl.length);
+
+        // Detectar imagens por extensão OU por domínio media.libernet.app/f/
+        const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)(\?.*)?$/i.test(cleanUrl) ||
+                       /media\.libernet\.app\/f\/\d+/.test(cleanUrl);
+
+        if (isImage) {
+            return `<img src="${cleanUrl}" class="max-w-full max-h-96 rounded-lg mt-2 mb-1 cursor-pointer hover:opacity-90 transition-opacity" alt="Imagem" loading="lazy" onclick="openImageModal('${cleanUrl}')">${punctuation}`;
+        } else {
+            // Link normal para outros tipos de arquivo
+            return `<a href="${cleanUrl}" target="_blank" class="underline ${linkColor}">${cleanUrl}</a>${punctuation}`;
+        }
+    });
+
+    return escaped;
+}
+
+// Adicionar mensagem à tela (para mensagens novas enviadas)
+function addMessageToScreen(content, isMine = true) {
+    const container = document.getElementById('messagesContainer');
+
+    // Se for a primeira mensagem, limpar mensagem de boas-vindas
+    const welcomeMsg = container.querySelector('.text-center.py-10');
+    if (welcomeMsg) {
+        container.innerHTML = '';
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex ${isMine ? 'justify-end' : 'justify-start'} mb-3`;
+
+    const bubble = document.createElement('div');
+    bubble.className = `max-w-[70%] rounded-lg px-4 py-2 ${
+        isMine
+            ? 'bg-yellow-500 text-black'
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+    }`;
+
+    const text = document.createElement('div');
+    text.className = 'text-sm break-words';
+    text.innerHTML = processMessageContent(content, isMine);
+
+    const time = document.createElement('p');
+    time.className = `text-xs mt-1 ${isMine ? 'text-black/70' : 'text-gray-500 dark:text-gray-400'}`;
+    time.textContent = 'Agora';
+
+    bubble.appendChild(text);
+    bubble.appendChild(time);
+    messageDiv.appendChild(bubble);
+    container.appendChild(messageDiv);
+
+    // Scroll para o final (com timeout para garantir que renderizou)
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 100);
+}
+
+// Formatar timestamp
+function formatTime(timestamp) {
+    if (!timestamp) return '';
+
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'Agora';
+    if (diffMins < 60) return `${diffMins}min atrás`;
+
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h atrás`;
+
+    // Se for hoje, mostrar hora
+    if (date.toDateString() === now.toDateString()) {
+        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Se for ontem
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (date.toDateString() === yesterday.toDateString()) {
+        return `Ontem ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    // Data completa
+    return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Polling para novas mensagens
+let lastMessageTimestamp = null;
+let pollingInterval = null;
+
+// Mostrar notificação de DM
+function showDMNotification(message) {
+    // Verificar se notificações estão habilitadas
+    const settings = JSON.parse(localStorage.getItem('liberchat_notifications') || '{}');
+    const enabled = settings.enabled !== false; // default true
+
+    if (!enabled || Notification.permission !== 'granted') {
+        // Se notificações não estão habilitadas, apenas tocar som
+        if (enabled && (settings.alertType === 'both' || settings.alertType === 'sound' || !settings.alertType)) {
+            playNotificationSound(settings.volume || 70);
+        }
+        return;
+    }
+
+    // Preparar conteúdo da notificação
+    const preview = settings.preview !== false; // default true
+    const body = preview ? (message.decrypted_content || 'Nova mensagem') : 'Nova mensagem';
+
+    // Criar notificação
+    const notification = new Notification(contactName || 'Novo contato', {
+        body: body,
+        icon: contactPicture || '/static/img/avatar-default.png',
+        badge: '/static/img/logo.png',
+        tag: 'liberchat-dm-' + contactPubkey,
+        requireInteraction: false
+    });
+
+    // Som e vibração
+    const alertType = settings.alertType || 'both';
+    if (alertType === 'both' || alertType === 'sound') {
+        playNotificationSound(settings.volume || 70);
+    }
+
+    if (alertType === 'both' || alertType === 'vibration') {
+        if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+        }
+    }
+
+    // Ao clicar na notificação, focar na janela
+    notification.onclick = function() {
+        window.focus();
+        notification.close();
+    };
+
+    // Auto-fechar após 5 segundos
+    setTimeout(() => notification.close(), 5000);
+}
+
+async function checkNewMessages() {
+    try {
+        const response = await fetch(`/api/messages?contact_pubkey=${contactPubkey}`);
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.messages.length > 0) {
+            const latestMessage = data.messages[data.messages.length - 1];
+            const latestTimestamp = latestMessage.created_at;
+
+            // Se há nova mensagem
+            if (lastMessageTimestamp && latestTimestamp > lastMessageTimestamp) {
+                console.log('[DM] Nova mensagem detectada!');
+
+                // Buscar apenas mensagens novas
+                const newMessages = data.messages.filter(m => m.created_at > lastMessageTimestamp);
+
+                newMessages.forEach(msg => {
+                    // Só adicionar se não for minha (minhas já aparecem ao enviar)
+                    if (!msg.is_mine) {
+                        addMessageToScreen(msg.decrypted_content || '[Mensagem criptografada]', false);
+
+                        // Mostrar notificação
+                        showDMNotification(msg);
+                    }
+                });
+            }
+
+            lastMessageTimestamp = latestTimestamp;
+        }
+    } catch (error) {
+        console.error('[DM] Erro no polling:', error);
+    }
+}
+
+function playNotificationSound(volume = 70) {
+    // Som simples usando Web Audio API
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        // Volume ajustado (0 a 100 -> 0 a 0.3)
+        const gainValue = (volume / 100) * 0.3;
+        gainNode.gain.setValueAtTime(gainValue, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        // Ignorar erro de áudio
+    }
+}
+
+// Iniciar polling
+function startPolling() {
+    // Verificar a cada 3 segundos
+    pollingInterval = setInterval(checkNewMessages, 3000);
+    console.log('[DM] Polling iniciado (3s)');
+}
+
+// Parar polling
+function stopPolling() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+        console.log('[DM] Polling parado');
+    }
+}
+
+// Carregar mensagens ao abrir a página
+document.addEventListener('DOMContentLoaded', () => {
+    loadMessages();
+
+    // Aguardar 2 segundos após carregar mensagens para iniciar polling
+    setTimeout(() => {
+        startPolling();
+    }, 2000);
+});
+
+// Parar polling ao sair da página
+window.addEventListener('beforeunload', () => {
+    stopPolling();
+});
+
+// Função auxiliar para escapar HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

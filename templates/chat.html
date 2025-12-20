@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com busca -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 px-3 py-2">
+        <div class="flex items-center gap-2">
+            <!-- Campo de busca -->
+            <div class="flex-1 relative">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Buscar conversas..."
+                    data-i18n-placeholder="chat.search_placeholder"
+                    class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
+                >
+                <img src="/static/icons/search.svg" class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 dark:invert opacity-50" alt="">
+            </div>
+
+            <!-- Botão adicionar -->
+            <button
+                id="btnAdd"
+                onclick="showAddMenu()"
+                class="p-1.5 bg-yellow-500 hover:bg-yellow-600 rounded-lg transition-colors flex-shrink-0"
+                title="Adicionar"
+            >
+                <img src="/static/icons/plus.svg" class="w-4 h-4 brightness-0" alt="Adicionar">
+            </button>
+        </div>
+    </div>
+
+    <!-- Conteúdo principal (tabs) -->
+    <div class="pb-24">
+        <!-- Tab: Chats -->
+        <div id="tabChats" class="tab-content overflow-y-auto">
+            <div id="chatsList">
+                <!-- Lista de chats vazia -->
+                <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                    <img src="/static/icons/message-circle.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                    <p class="text-lg font-medium mb-2">Nenhuma conversa ainda</p>
+                    <p class="text-sm">Toque no + para iniciar um chat ou criar um grupo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Grupos -->
+        <div id="tabGroups" class="tab-content hidden overflow-y-auto">
+            <div id="groupsList" class="p-4">
+                <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                    <img src="/static/icons/users-round.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                    <p class="text-lg font-medium mb-2">Nenhum grupo ainda</p>
+                    <p class="text-sm">Toque no + para criar seu primeiro grupo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Contatos -->
+        <div id="tabContacts" class="tab-content hidden overflow-y-auto">
+            <div id="contactsList" class="p-4">
+                <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                    <img src="/static/icons/users.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                    <p class="text-lg font-medium mb-2">Nenhum contato ainda</p>
+                    <p class="text-sm">Toque no + para adicionar contatos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Configurações -->
+        <div id="tabSettings" class="tab-content hidden overflow-y-auto">
+            <div class="p-3 space-y-3 pb-40">
+                <!-- Perfil com NIP-05 -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="relative w-14 h-14 flex-shrink-0">
+                            <img id="settingsAvatar"
+                                 src="/static/img/avatar-default.png"
+                                 class="w-14 h-14 rounded-full border-2 border-yellow-500 object-cover"
+                                 alt="Foto de perfil"
+                                 onerror="this.src='/static/img/avatar-default.png'">
+                            <div id="settingsBadge" class="absolute -bottom-1 -right-1"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p id="settingsDisplayName" class="font-semibold truncate text-gray-900 dark:text-white mb-1">{{ npub[:12] }}...{{ npub[-6:] }}</p>
+                            <p id="settingsNip05" class="text-xs text-gray-500 dark:text-gray-400">Conectado</p>
+                        </div>
+                    </div>
+                    <a href="/settings" class="block w-full py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg text-center transition-colors" data-i18n="settings.configure_nip05">
+                        Configurar NIP-05
+                    </a>
+                </div>
+
+                <!-- Lista de Configurações -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Geral -->
+                    <button onclick="window.location.href='/settings/general'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.general">Geral</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Aparência -->
+                    <button onclick="window.location.href='/settings/appearance'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/palette.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.appearance">Aparência</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Relays -->
+                    <button onclick="window.location.href='/settings/relays'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/radio.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.relays">Relays</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Tradução -->
+                    <button onclick="window.location.href='/settings/translation'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/globe.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.translation">Tradução</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Carteira -->
+                    <button onclick="window.location.href='/settings/wallet'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/wallet.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.wallet">Carteira Lightning</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Emojis -->
+                    <button onclick="window.location.href='/settings/emojis'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/smile.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.emoji">Emojis</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Segurança -->
+                    <button onclick="window.location.href='/security'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/shield.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.security">Segurança</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Projetos Liber -->
+                    <button onclick="window.location.href='/projects'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/folder.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.projects">Projetos Liber</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Ajuda -->
+                    <button onclick="window.location.href='/help'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/help-circle.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.help">Ajuda</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+
+                    <!-- Apoie -->
+                    <button onclick="window.location.href='/donate'" class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <img src="/static/icons/heart.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span class="flex-1 text-left font-medium text-gray-900 dark:text-white" data-i18n="settings.donate">Apoie o Projeto</span>
+                        <img src="/static/icons/chevron-right.svg" class="w-4 h-4 dark:invert opacity-50" alt="">
+                    </button>
+                </div>
+
+                <!-- Sair -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                    <a href="/logout" class="block w-full py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg text-center transition-colors" data-i18n="settings.logout">
+                        Sair
+                    </a>
+                </div>
+
+                <!-- Versão -->
+                <div class="text-center text-xs text-gray-400 pb-2">
+                    <p>LiberChat v1.0.0</p>
+                    <p>Nostr Protocol • Libernet Network</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- Fecha wrapper centralizado -->
+
+    <!-- Navegação inferior (mobile) -->
+    <nav class="fixed bottom-0 inset-x-0 max-w-3xl mx-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 z-50" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="flex items-center justify-around h-[52px]">
+            <!-- Contatos (extrema esquerda) -->
+            <button
+                data-tab="contacts"
+                onclick="switchTab('contacts')"
+                class="tab-btn flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300"
+            >
+                <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Contatos</span>
+            </button>
+
+            <!-- Grupos -->
+            <button
+                data-tab="groups"
+                onclick="switchTab('groups')"
+                class="tab-btn flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300"
+            >
+                <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Grupos</span>
+            </button>
+
+            <!-- Chats -->
+            <button
+                data-tab="chats"
+                onclick="switchTab('chats')"
+                class="tab-btn flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors active text-gray-600 dark:text-gray-300"
+            >
+                <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Chats</span>
+            </button>
+
+            <!-- Configurações (extrema direita) -->
+            <button
+                data-tab="settings"
+                onclick="switchTab('settings')"
+                class="tab-btn flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-300"
+            >
+                <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+                <span class="text-[9px] font-medium leading-none">Config</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal: Menu Adicionar -->
+    <div id="modalAddMenu" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-t-2xl md:rounded-2xl w-full md:max-w-md md:mx-4 safe-area-bottom">
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Adicionar</h3>
+
+                <div class="space-y-2">
+                    <button onclick="showAddContact()" class="w-full flex items-center gap-3 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <img src="/static/icons/user-plus.svg" class="w-6 h-6 dark:invert" alt="">
+                        <div class="text-left">
+                            <p class="font-medium text-gray-900 dark:text-white">Novo contato</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Adicionar por npub ou NIP-05</p>
+                        </div>
+                    </button>
+
+                    <button onclick="showCreateGroup()" class="w-full flex items-center gap-3 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <img src="/static/icons/users-round.svg" class="w-6 h-6 dark:invert" alt="">
+                        <div class="text-left">
+                            <p class="font-medium text-gray-900 dark:text-white">Novo grupo</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Criar grupo de conversas</p>
+                        </div>
+                    </button>
+                </div>
+
+                <button onclick="closeModal('modalAddMenu')" class="w-full mt-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Criar Grupo -->
+    <div id="modalCreateGroup" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-t-2xl md:rounded-2xl w-full md:max-w-md md:mx-4 max-h-[90vh] overflow-y-auto safe-area-bottom">
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Criar Grupo</h3>
+
+                <form id="createGroupForm" class="space-y-4">
+                    <!-- Imagem do grupo -->
+                    <div class="flex justify-center mb-4">
+                        <div class="relative">
+                            <div id="groupImagePreview" class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
+                                <img src="/static/icons/users-round.svg" class="w-12 h-12 dark:invert opacity-50" alt="">
+                            </div>
+                            <button type="button" onclick="selectGroupImage()" class="absolute bottom-0 right-0 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <img src="/static/icons/plus.svg" class="w-5 h-5 brightness-0" alt="">
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Nome do grupo -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Nome do grupo *</label>
+                        <input
+                            type="text"
+                            id="groupName"
+                            placeholder="Ex: Amigos do Bitcoin"
+                            maxlength="100"
+                            required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        >
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 3 caracteres</p>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Descrição (opcional)</label>
+                        <textarea
+                            id="groupDescription"
+                            placeholder="Descreva sobre o que é este grupo..."
+                            maxlength="500"
+                            rows="3"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                        ></textarea>
+                    </div>
+
+                    <!-- Privacidade -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Privacidade</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-300 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <input type="radio" name="groupPrivacy" value="false" checked class="w-4 h-4 text-yellow-500">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Público</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Qualquer pessoa pode ver as mensagens</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-300 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <input type="radio" name="groupPrivacy" value="true" class="w-4 h-4 text-yellow-500">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Privado</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Apenas membros podem ver</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- URL da imagem (oculto por padrão) -->
+                    <input type="hidden" id="groupPictureUrl" value="">
+
+                    <!-- Botões -->
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal('modalCreateGroup')" class="flex-1 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium text-gray-900 dark:text-white">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors">
+                            Criar Grupo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Contato -->
+    <div id="modalAddContact" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-t-2xl md:rounded-2xl w-full md:max-w-md md:mx-4 max-h-[90vh] overflow-y-auto safe-area-bottom">
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Adicionar Contato</h3>
+
+                <!-- Campo de busca -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                        npub ou NIP-05
+                    </label>
+                    <div class="flex gap-2">
+                        <input
+                            type="text"
+                            id="contactSearchInput"
+                            placeholder="npub1... ou nome@dominio.com"
+                            class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        >
+                        <button type="button" onclick="pasteNpub()" class="px-4 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                            <img src="/static/icons/copy.svg" class="w-5 h-5 dark:invert" alt="Colar">
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        Cole o npub do usuário ou digite o identificador NIP-05
+                    </p>
+                </div>
+
+                <!-- Status da busca -->
+                <div id="contactSearchStatus" class="mb-4 hidden">
+                    <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Buscando perfil...</span>
+                    </div>
+                </div>
+
+                <!-- Preview do perfil encontrado -->
+                <div id="contactPreview" class="hidden mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <img id="contactPreviewAvatar"
+                             src="/static/img/avatar-default.png"
+                             class="w-16 h-16 rounded-full object-cover border-2 border-yellow-500"
+                             alt="Avatar">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 id="contactPreviewName" class="font-semibold text-gray-900 dark:text-white truncate"></h4>
+                                <span id="contactPreviewBadge"></span>
+                            </div>
+                            <p id="contactPreviewNip05" class="text-sm text-purple-600 dark:text-purple-400 mb-2"></p>
+                            <p id="contactPreviewAbout" class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensagem de erro -->
+                <div id="contactSearchError" class="hidden mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p class="text-sm text-red-800 dark:text-red-200"></p>
+                </div>
+
+                <!-- Botões -->
+                <div class="space-y-3">
+                    <!-- Adicionar aos Contatos -->
+                    <button id="addToContactsBtn" onclick="addContactToList()" class="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled>
+                        <img src="/static/icons/user-plus.svg" class="w-5 h-5 brightness-0" alt="">
+                        Adicionar aos Contatos
+                    </button>
+
+                    <!-- Iniciar Conversa -->
+                    <button id="startChatBtn" onclick="startChatWithContact()" class="w-full py-3 bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled>
+                        <img src="/static/icons/message-circle.svg" class="w-5 h-5 brightness-0 invert" alt="">
+                        Apenas Iniciar Conversa
+                    </button>
+
+                    <!-- Cancelar -->
+                    <button type="button" onclick="closeAddContactModal()" class="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium text-gray-900 dark:text-white">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts e estilos -->
+<style>
+    .safe-area-bottom {
+        padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+    }
+
+    .tab-btn.active {
+        color: rgb(234, 179, 8); /* yellow-500 */
+    }
+
+    .tab-btn.active img {
+        filter: brightness(0) saturate(100%) invert(68%) sepia(84%) saturate(449%) hue-rotate(1deg) brightness(101%) contrast(96%);
+    }
+
+    html.dark .tab-btn.active img {
+        filter: brightness(0) saturate(100%) invert(68%) sepia(84%) saturate(449%) hue-rotate(1deg) brightness(101%) contrast(96%);
+    }
+
+    /* Garantir layout correto em mobile */
+    html, body {
+        height: 100vh;
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+    }
+
+    .tab-content {
+        max-height: calc(100vh - 120px); /* viewport height menos header e nav */
+        min-height: calc(100vh - 120px);
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+
+<script>
+    // Navegação entre tabs
+    function switchTab(tabName) {
+        console.log('[TAB] Switching to:', tabName);
+
+        // Esconder todas as tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+        });
+
+        // Remover active de todos os botões
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Mostrar tab selecionada
+        const selectedTab = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+        if (selectedTab) {
+            selectedTab.classList.remove('hidden');
+        }
+
+        // Ativar botão selecionado
+        const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.add('active');
+        }
+
+        // Atualizar placeholder de busca
+        const searchInput = document.getElementById('searchInput');
+        const placeholders = {
+            'chats': window.i18n ? window.i18n.t('chat.search_placeholder') : 'Buscar conversas...',
+            'groups': window.i18n ? window.i18n.t('chat.search_groups_placeholder') : 'Buscar grupos...',
+            'contacts': window.i18n ? window.i18n.t('chat.search_contacts_placeholder') : 'Buscar contatos...',
+            'settings': window.i18n ? window.i18n.t('chat.search_settings_placeholder') : 'Buscar configurações...'
+        };
+        searchInput.placeholder = placeholders[tabName] || 'Buscar...';
+
+        // Carregar dados específicos da aba
+        if (tabName === 'contacts') {
+            loadContacts();
+        } else if (tabName === 'groups') {
+            loadGroups();
+        } else if (tabName === 'chats') {
+            loadChats();
+        }
+    }
+
+    // Menu de adicionar
+    function showAddMenu() {
+        document.getElementById('modalAddMenu').classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    let foundContactPubkey = null;
+
+    function showAddContact() {
+        closeModal('modalAddMenu');
+        document.getElementById('modalAddContact').classList.remove('hidden');
+
+        // Resetar campos
+        document.getElementById('contactSearchInput').value = '';
+        document.getElementById('contactPreview').classList.add('hidden');
+        document.getElementById('contactSearchStatus').classList.add('hidden');
+        document.getElementById('contactSearchError').classList.add('hidden');
+        document.getElementById('startChatBtn').disabled = true;
+        foundContactPubkey = null;
+    }
+
+    function closeAddContactModal() {
+        document.getElementById('modalAddContact').classList.add('hidden');
+    }
+
+    // Listener para busca em tempo real
+    document.addEventListener('DOMContentLoaded', () => {
+        const contactInput = document.getElementById('contactSearchInput');
+        let searchTimeout;
+
+        contactInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const value = e.target.value.trim();
+
+            // Resetar estado
+            document.getElementById('contactPreview').classList.add('hidden');
+            document.getElementById('contactSearchError').classList.add('hidden');
+            document.getElementById('startChatBtn').disabled = true;
+            foundContactPubkey = null;
+
+            if (value.length < 10) return;
+
+            // Mostrar loading
+            document.getElementById('contactSearchStatus').classList.remove('hidden');
+
+            searchTimeout = setTimeout(() => {
+                searchContact(value);
+            }, 800);
+        });
+    });
+
+    async function pasteNpub() {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById('contactSearchInput').value = text.trim();
+
+            // Disparar busca automaticamente
+            const event = new Event('input');
+            document.getElementById('contactSearchInput').dispatchEvent(event);
+        } catch (error) {
+            console.error('[CONTACT] Erro ao colar:', error);
+            alert('Não foi possível acessar a área de transferência. Cole manualmente.');
+        }
+    }
+
+    async function searchContact(input) {
+        try {
+            console.log('[CONTACT] Buscando:', input);
+
+            let npub = input;
+            let pubkey = null;
+
+            // Se for NIP-05 (contém @)
+            if (input.includes('@')) {
+                const [name, domain] = input.split('@');
+
+                if (!name || !domain) {
+                    showContactError('NIP-05 inválido. Formato: nome@dominio.com');
+                    return;
+                }
+
+                try {
+                    const url = `https://${domain}/.well-known/nostr.json?name=${name}`;
+                    console.log('[CONTACT] Resolvendo NIP-05:', url);
+
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error('Servidor não respondeu');
+                    }
+
+                    const data = await response.json();
+                    pubkey = data.names?.[name];
+
+                    if (!pubkey) {
+                        throw new Error('Nome não encontrado');
+                    }
+
+                    console.log('[CONTACT] Pubkey via NIP-05:', pubkey);
+                } catch (error) {
+                    console.error('[CONTACT] Erro ao resolver NIP-05:', error);
+                    showContactError(`NIP-05 "${input}" não encontrado. Verifique se está correto.`);
+                    return;
+                }
+            } else if (!input.startsWith('npub1')) {
+                showContactError('Formato inválido. Use npub1... ou nome@dominio.com');
+                return;
+            } else if (input.length < 50) {
+                showContactError('npub muito curto. Verifique se copiou corretamente.');
+                return;
+            }
+
+            // Buscar perfil via backend
+            const response = await fetch('/api/nostr/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    npub: npub,
+                    pubkey: pubkey
+                })
+            });
+
+            const data = await response.json();
+            document.getElementById('contactSearchStatus').classList.add('hidden');
+
+            if (data.status === 'ok' && data.perfil) {
+                showContactPreview(data.perfil, data.pubkey || pubkey);
+            } else {
+                showContactError('Perfil não encontrado nos relays. Verifique se o npub está correto.');
+            }
+        } catch (error) {
+            console.error('[CONTACT] Erro na busca:', error);
+            document.getElementById('contactSearchStatus').classList.add('hidden');
+            showContactError('Erro ao buscar perfil. Verifique sua conexão e tente novamente.');
+        }
+    }
+
+    function showContactPreview(perfil, pubkey) {
+        console.log('[CONTACT] Mostrando preview:', perfil);
+        console.log('[CONTACT] Pubkey recebida:', pubkey);
+
+        foundContactPubkey = pubkey;
+        console.log('[CONTACT] foundContactPubkey setada para:', foundContactPubkey);
+
+        // Avatar
+        const avatar = document.getElementById('contactPreviewAvatar');
+        avatar.src = perfil.picture || '/static/img/avatar-default.png';
+
+        // Nome
+        const name = perfil.display_name || perfil.name || 'Usuário sem nome';
+        document.getElementById('contactPreviewName').textContent = name;
+
+        // NIP-05
+        const nip05Element = document.getElementById('contactPreviewNip05');
+        if (perfil.nip05) {
+            nip05Element.textContent = perfil.nip05;
+            nip05Element.classList.remove('hidden');
+        } else {
+            nip05Element.classList.add('hidden');
+        }
+
+        // About
+        const aboutElement = document.getElementById('contactPreviewAbout');
+        if (perfil.about) {
+            aboutElement.textContent = perfil.about;
+            aboutElement.classList.remove('hidden');
+        } else {
+            aboutElement.classList.add('hidden');
+        }
+
+        // Badge (opcional - pode adicionar depois)
+        document.getElementById('contactPreviewBadge').innerHTML = '';
+
+        // Mostrar preview e habilitar botões
+        document.getElementById('contactPreview').classList.remove('hidden');
+        document.getElementById('addToContactsBtn').disabled = false;
+        document.getElementById('startChatBtn').disabled = false;
+    }
+
+    function showContactError(message) {
+        const errorDiv = document.getElementById('contactSearchError');
+        errorDiv.querySelector('p').textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    async function addContactToList() {
+        console.log('[CONTACT] addContactToList chamada, foundContactPubkey:', foundContactPubkey);
+
+        if (!foundContactPubkey) {
+            alert('Nenhum contato selecionado');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/contacts/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({pubkey: foundContactPubkey})
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'ok') {
+                console.log('[CONTACT] Contato adicionado com sucesso!');
+
+                // Fechar modal
+                closeAddContactModal();
+
+                // Recarregar lista de contatos
+                await loadContacts();
+
+                // Mudar para aba de contatos
+                switchTab('contacts');
+
+                // Mostrar toast de sucesso
+                const name = document.getElementById('contactPreviewName').textContent;
+                showToast(`${name} adicionado aos contatos!`, 'success');
+            } else {
+                alert('Erro ao adicionar contato: ' + (data.error || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('[CONTACT] Erro ao adicionar:', error);
+            alert('Erro ao adicionar contato. Tente novamente.');
+        }
+    }
+
+    function startChatWithContact() {
+        console.log('[CONTACT] startChatWithContact chamada, foundContactPubkey:', foundContactPubkey);
+
+        if (!foundContactPubkey) {
+            alert('Nenhum contato selecionado');
+            return;
+        }
+
+        console.log('[CONTACT] Iniciando conversa com:', foundContactPubkey);
+
+        closeAddContactModal();
+
+        // Redirecionar para página de DM
+        window.location.href = `/dm/${foundContactPubkey}`;
+    }
+
+    function showCreateGroup() {
+        closeModal('modalAddMenu');
+        document.getElementById('modalCreateGroup').classList.remove('hidden');
+    }
+
+    function selectGroupImage() {
+        // Por enquanto, permitir inserir URL manualmente
+        const url = prompt('Cole a URL da imagem do grupo:');
+        if (url) {
+            document.getElementById('groupPictureUrl').value = url;
+            // Atualizar preview
+            const preview = document.getElementById('groupImagePreview');
+            preview.innerHTML = `<img src="${url}" class="w-full h-full object-cover" alt="Preview">`;
+        }
+    }
+
+    // Criar grupo
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('createGroupForm');
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('groupName').value.trim();
+                const description = document.getElementById('groupDescription').value.trim();
+                const picture_url = document.getElementById('groupPictureUrl').value.trim();
+                const privateGroup = document.querySelector('input[name="groupPrivacy"]:checked').value === 'true';
+
+                if (!name || name.length < 3) {
+                    alert('O nome do grupo deve ter no mínimo 3 caracteres');
+                    return;
+                }
+
+                try {
+                    console.log('[GROUP] Criando grupo:', name);
+
+                    const response = await fetch('/api/groups/create', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            name,
+                            description,
+                            picture_url,
+                            private: privateGroup
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'ok') {
+                        console.log('[GROUP] Grupo criado:', data.group);
+
+                        // Fechar modal
+                        closeModal('modalCreateGroup');
+
+                        // Limpar formulário
+                        form.reset();
+                        document.getElementById('groupImagePreview').innerHTML = '<img src="/static/icons/users-round.svg" class="w-12 h-12 dark:invert opacity-50" alt="">';
+
+                        // Recarregar lista de chats (agora inclui grupos)
+                        await loadChats();
+
+                        // Ir para aba de chats
+                        switchTab('chats');
+
+                        // Mostrar mensagem de sucesso
+                        alert(`Grupo "${name}" criado com sucesso!`);
+                    } else {
+                        alert('Erro ao criar grupo: ' + (data.error || 'Erro desconhecido'));
+                    }
+                } catch (error) {
+                    console.error('[GROUP] Erro ao criar grupo:', error);
+                    alert('Erro ao criar grupo. Tente novamente.');
+                }
+            });
+        }
+    });
+
+    // Buscar perfil Nostr (kind 0)
+    async function buscarPerfilNostr(npub) {
+        try {
+            console.log('[Nostr] Buscando perfil para:', npub);
+
+            const response = await fetch('/api/nostr/profile', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({npub})
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'ok' && data.perfil) {
+                console.log('[Nostr] Perfil encontrado:', data.perfil);
+                return data.perfil;
+            }
+
+            console.log('[Nostr] Perfil não encontrado');
+            return null;
+        } catch (error) {
+            console.error('[Nostr] Erro ao buscar perfil:', error);
+            return null;
+        }
+    }
+
+    // Carregar e exibir perfil + NIP-05 do usuário
+    async function loadUserProfile() {
+        const npub = '{{ npub }}';
+        console.log('[CHAT] loadUserProfile iniciado. npub:', npub);
+
+        try {
+            // Buscar perfil Nostr
+            console.log('[CHAT] Buscando perfil Nostr...');
+            const perfil = await buscarPerfilNostr(npub);
+            console.log('[CHAT] Perfil recebido:', perfil);
+
+            if (perfil) {
+                // Atualizar nome
+                const displayName = perfil.display_name || perfil.name || npub.substring(0, 12) + '...';
+
+                // Atualizar em configurações
+                document.getElementById('settingsDisplayName').textContent = displayName;
+                console.log('[CHAT] Nome atualizado para:', displayName);
+
+                // Atualizar foto de perfil
+                if (perfil.picture) {
+                    document.getElementById('settingsAvatar').src = perfil.picture;
+                    console.log('[CHAT] Foto de perfil atualizada');
+                }
+
+                // Se o perfil tem NIP-05, mostrar
+                if (perfil.nip05) {
+                    document.getElementById('settingsNip05').textContent = perfil.nip05;
+                    console.log('[CHAT] NIP-05 do perfil encontrado:', perfil.nip05);
+                }
+
+                // Salvar no localStorage
+                localStorage.setItem('liberchat_name', perfil.name || '');
+                localStorage.setItem('liberchat_display_name', perfil.display_name || '');
+                localStorage.setItem('liberchat_picture', perfil.picture || '');
+                localStorage.setItem('liberchat_about', perfil.about || '');
+                localStorage.setItem('liberchat_nip05', perfil.nip05 || '');
+            }
+
+            // Carregar badge do usuário
+            try {
+                console.log('[CHAT] Carregando badge para pubkey:', pubkey);
+                const badgeResponse = await fetch(`/api/user/badge?pubkey=${pubkey}`);
+                const badgeData = await badgeResponse.json();
+                console.log('[CHAT] Badge response:', badgeData);
+
+                if (badgeData.status === 'ok') {
+                    const badgeType = badgeData.badge || 'free';
+                    console.log('[CHAT] Badge type:', badgeType);
+
+                    const badges = {
+                        free: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#E5E7EB"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>`,
+                        paid: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#3B82F6"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>`,
+                        admin: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#6B7280"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>`,
+                        gold: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#F59E0B"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>`,
+                        green: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#10B981"/>
+                            <path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>`
+                    };
+
+                    const badgeElement = document.getElementById('settingsBadge');
+                    if (badgeElement) {
+                        badgeElement.innerHTML = badges[badgeType];
+                        console.log('[CHAT] Badge atualizado no DOM:', badgeType);
+                    } else {
+                        console.error('[CHAT] Elemento settingsBadge não encontrado!');
+                    }
+                }
+            } catch (error) {
+                console.error('[CHAT] Erro ao carregar badge:', error);
+            }
+
+            // Buscar NIP-05 local (configurado no LiberChat)
+            console.log('[CHAT] Buscando status NIP-05 local...');
+            const nip05Response = await fetch('/api/nip05/status');
+            const nip05Data = await nip05Response.json();
+            console.log('[CHAT] NIP-05 local:', nip05Data);
+
+            // NIP-05 local tem prioridade sobre o do perfil
+            if (nip05Data.has_nip05 && nip05Data.verified) {
+                document.getElementById('settingsNip05').textContent = nip05Data.nip05;
+                console.log('[CHAT] Usando NIP-05 local verificado:', nip05Data.nip05);
+
+                // Atualizar nome com username se não tiver display_name
+                if (!perfil || (!perfil.display_name && !perfil.name)) {
+                    document.getElementById('settingsDisplayName').textContent = nip05Data.username;
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar perfil:', error);
+        }
+    }
+
+    // Carregar grupos do usuário
+    async function loadGroups() {
+        try {
+            console.log('[GROUPS] Carregando grupos...');
+
+            const response = await fetch('/api/groups/list');
+            const data = await response.json();
+
+            if (data.status === 'ok') {
+                console.log('[GROUPS] Grupos carregados:', data.groups.length);
+
+                const groupsList = document.getElementById('groupsList');
+
+                if (data.groups.length === 0) {
+                    const noGroupsTitle = window.i18n ? window.i18n.t('chat.no_groups_title') : 'Nenhum grupo ainda';
+                    const noGroupsSubtitle = window.i18n ? window.i18n.t('chat.no_groups_subtitle') : 'Toque no + para criar seu primeiro grupo';
+                    groupsList.innerHTML = `
+                        <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                            <img src="/static/icons/users-round.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                            <p class="text-lg font-medium mb-2">${noGroupsTitle}</p>
+                            <p class="text-sm">${noGroupsSubtitle}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar grupos
+                let groupsHTML = '<div class="space-y-2">';
+
+                for (const group of data.groups) {
+                    const memberText = group.member_count === 1 ? '1 membro' : `${group.member_count} membros`;
+                    const adminBadge = group.is_admin ? '<span class="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded-full font-medium">Admin</span>' : '';
+
+                    groupsHTML += `
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" onclick="openGroup(${group.id})">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                                    ${group.picture_url ?
+                                        `<img src="${group.picture_url}" class="w-full h-full rounded-full object-cover" alt="">` :
+                                        `<span class="text-lg">${group.name.charAt(0).toUpperCase()}</span>`
+                                    }
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="font-semibold text-gray-900 dark:text-white truncate">${group.name}</h3>
+                                        ${adminBadge}
+                                        ${group.private ? '<img src="/static/icons/lock.svg" class="w-3 h-3 dark:invert opacity-50" alt="Privado">' : ''}
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">${memberText}</p>
+                                    ${group.description ? `<p class="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">${group.description}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                groupsHTML += '</div>';
+                groupsList.innerHTML = groupsHTML;
+            }
+        } catch (error) {
+            console.error('[GROUPS] Erro ao carregar grupos:', error);
+        }
+    }
+
+    function openGroup(groupId) {
+        console.log('[GROUP] Abrindo grupo:', groupId);
+
+        // Redirecionar para página de chat do grupo
+        window.location.href = `/group/${groupId}`;
+    }
+
+    // Carregar lista de contatos
+    async function loadContacts() {
+        try {
+            console.log('[CONTACTS] Carregando contatos...');
+
+            const response = await fetch('/api/contacts');
+            const data = await response.json();
+
+            console.log('[CONTACTS] Resposta da API:', data);
+
+            if (data.status === 'ok') {
+                console.log('[CONTACTS] Contatos carregados:', data.contacts.length);
+                console.log('[CONTACTS] Lista de contatos:', data.contacts);
+
+                const contactsList = document.getElementById('contactsList');
+
+                if (data.contacts.length === 0) {
+                    const noContactsTitle = window.i18n ? window.i18n.t('chat.no_contacts_title') : 'Nenhum contato ainda';
+                    const noContactsSubtitle = window.i18n ? window.i18n.t('chat.no_contacts_subtitle') : 'Toque no + para adicionar contatos';
+                    contactsList.innerHTML = `
+                        <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                            <img src="/static/icons/users.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                            <p class="text-lg font-medium mb-2">${noContactsTitle}</p>
+                            <p class="text-sm">${noContactsSubtitle}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar contatos
+                let contactsHTML = '<div class="space-y-2">';
+
+                for (const contact of data.contacts) {
+                    contactsHTML += `
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" onclick="openDM('${contact.pubkey}')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                                    ${contact.picture ?
+                                        `<img src="${contact.picture}" class="w-full h-full rounded-full object-cover" alt="">` :
+                                        `<span class="text-lg">${contact.name.charAt(0).toUpperCase()}</span>`
+                                    }
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-gray-900 dark:text-white truncate">${contact.name}</h3>
+                                    ${contact.nip05 ? `<p class="text-xs text-purple-600 dark:text-purple-400 truncate">${contact.nip05}</p>` : ''}
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 truncate">${contact.npub}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                contactsHTML += '</div>';
+                contactsList.innerHTML = contactsHTML;
+            }
+        } catch (error) {
+            console.error('[CONTACTS] Erro ao carregar contatos:', error);
+        }
+    }
+
+    function openDM(contactPubkey) {
+        console.log('[DM] Abrindo DM com:', contactPubkey);
+        window.location.href = `/dm/${contactPubkey}`;
+    }
+
+    // Carregar lista de chats
+    async function loadChats() {
+        try {
+            console.log('[CHATS] Carregando chats unificados (DMs + Grupos)...');
+
+            const response = await fetch('/api/chats/unified');
+            const data = await response.json();
+
+            if (data.status === 'ok') {
+                console.log('[CHATS] Chats carregados:', data.chats.length);
+
+                // Armazenar no cache global
+                allChats = data.chats;
+
+                const chatsList = document.getElementById('chatsList');
+
+                if (data.chats.length === 0) {
+                    const noChatsTitle = window.i18n ? window.i18n.t('chat.no_chats_title') : 'Nenhuma conversa ainda';
+                    const noChatsSubtitle = window.i18n ? window.i18n.t('chat.no_chats_subtitle') : 'Toque no + para iniciar um chat ou criar um grupo';
+                    chatsList.innerHTML = `
+                        <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                            <img src="/static/icons/message-circle.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                            <p class="text-lg font-medium mb-2">${noChatsTitle}</p>
+                            <p class="text-sm">${noChatsSubtitle}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar chats usando a função comum
+                renderChatsList(allChats);
+            }
+        } catch (error) {
+            console.error('[CHATS] Erro ao carregar chats:', error);
+        }
+    }
+
+    function openChat(contactPubkey, contactName) {
+        console.log('[CHAT] Abrindo conversa com:', contactName, contactPubkey);
+        // Redirecionar para página de DM
+        window.location.href = `/dm/${contactPubkey}`;
+    }
+
+    // Buscar/filtrar chats
+    let allChats = []; // Cache de todos os chats
+
+    function filterChats(query) {
+        query = query.toLowerCase().trim();
+
+        const chatsList = document.getElementById('chatsList');
+
+        if (!query) {
+            // Se não há busca, mostrar todos os chats
+            renderChatsList(allChats);
+            return;
+        }
+
+        // Filtrar chats por nome, npub, última mensagem, nip05
+        const filtered = allChats.filter(chat => {
+            const isGroup = chat.is_group || chat.type === 'group';
+
+            if (isGroup) {
+                // Para grupos: buscar por nome, última mensagem
+                return chat.name.toLowerCase().includes(query) ||
+                       (chat.last_message && chat.last_message.toLowerCase().includes(query));
+            } else {
+                // Para DMs: buscar por nome, npub, nip05, última mensagem
+                return chat.name.toLowerCase().includes(query) ||
+                       (chat.npub && chat.npub.toLowerCase().includes(query)) ||
+                       (chat.last_message && chat.last_message.toLowerCase().includes(query)) ||
+                       (chat.nip05 && chat.nip05.toLowerCase().includes(query));
+            }
+        });
+
+        renderChatsList(filtered);
+    }
+
+    function renderChatsList(chats) {
+        const chatsList = document.getElementById('chatsList');
+
+        if (chats.length === 0) {
+            chatsList.innerHTML = `
+                <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+                    <img src="/static/icons/message-circle.svg" class="w-16 h-16 mx-auto mb-4 opacity-20 dark:invert" alt="">
+                    <p class="text-lg font-medium mb-2">Nenhuma conversa encontrada</p>
+                    <p class="text-sm">Tente outro termo de busca</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Renderizar chats
+        let chatsHTML = '<div class="space-y-0">';
+
+        for (const chat of chats) {
+            // Formatação de tempo relativo
+            let timeText = '';
+            if (chat.last_message_time) {
+                const messageDate = new Date(chat.last_message_time);
+                const now = new Date();
+                const diffMs = now - messageDate;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) {
+                    timeText = 'agora';
+                } else if (diffMins < 60) {
+                    timeText = `${diffMins}m`;
+                } else if (diffHours < 24) {
+                    timeText = `${diffHours}h`;
+                } else if (diffDays < 7) {
+                    timeText = `${diffDays}d`;
+                } else {
+                    timeText = messageDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                }
+            }
+
+            // Diferenciar grupo de DM
+            const isGroup = chat.is_group || chat.type === 'group';
+            const clickAction = isGroup ? `openGroup(${chat.group_id})` : `openChat('${chat.pubkey}', '${chat.name.replace(/'/g, "\\'")}')`;
+
+            // Indicador de mensagem não lida
+            const unreadIndicator = chat.unread ? '<div class="w-2 h-2 bg-yellow-500 rounded-full"></div>' : '';
+            const unreadClass = chat.unread ? 'font-semibold' : '';
+
+            // Avatar ou inicial
+            const avatarHTML = chat.picture ?
+                `<img src="${chat.picture}" class="w-full h-full rounded-full object-cover" alt="">` :
+                `<span class="text-xl">${chat.name.charAt(0).toUpperCase()}</span>`;
+
+            // Prefixo para mensagem enviada (apenas DMs)
+            const messagePrefix = !isGroup && chat.is_sent ? 'Você: ' : '';
+
+            // Badges para grupos
+            let badges = '';
+            if (isGroup) {
+                // Ícone de grupo
+                badges += '<img src="/static/icons/users-round.svg" class="w-3 h-3 dark:invert opacity-50" alt="Grupo">';
+
+                // Badge admin
+                if (chat.is_admin) {
+                    badges += '<span class="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded-full font-medium ml-1">Admin</span>';
+                }
+
+                // Ícone privado
+                if (chat.private) {
+                    badges += '<img src="/static/icons/lock.svg" class="w-3 h-3 dark:invert opacity-50 ml-1" alt="Privado">';
+                }
+            } else {
+                // Badge NIP-05 verificado para DMs
+                if (chat.nip05) {
+                    badges = '<svg class="w-3 h-3 text-green-500 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>';
+                }
+            }
+
+            // Subtítulo (contador de membros para grupos, última mensagem para DMs)
+            let subtitle = '';
+            if (isGroup) {
+                subtitle = `<p class="text-xs text-gray-500 dark:text-gray-400">${chat.member_text}</p>`;
+                if (chat.last_message) {
+                    subtitle += `<p class="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">${chat.last_message}</p>`;
+                }
+            } else {
+                subtitle = `<p class="text-sm text-gray-500 dark:text-gray-400 truncate ${unreadClass}">${messagePrefix}${chat.last_message || 'Sem mensagens'}</p>`;
+            }
+
+            chatsHTML += `
+                <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" onclick="${clickAction}">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                            ${avatarHTML}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-1 min-w-0 flex-wrap">
+                                    <h3 class="font-semibold text-gray-900 dark:text-white truncate ${unreadClass}">${chat.name}</h3>
+                                    ${badges}
+                                </div>
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">${timeText}</span>
+                                    ${unreadIndicator}
+                                </div>
+                            </div>
+                            ${subtitle}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        chatsHTML += '</div>';
+        chatsList.innerHTML = chatsHTML;
+    }
+
+    // Atualizar traduções quando idioma mudar
+    window.addEventListener('languageChanged', () => {
+        console.log('[CHAT] Idioma alterado, recarregando listas...');
+        loadChats();
+        loadContacts();
+
+        // Atualizar placeholder do campo de busca
+        const currentTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'chats';
+        switchTab(currentTab);
+    });
+
+    // Carregar ao iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('[CHAT] Página carregada, iniciando busca de perfil...');
+        loadUserProfile();
+        loadContacts();
+        loadChats();
+
+        // Inicializar com tab de chats
+        switchTab('chats');
+
+        // Adicionar listener de busca
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const currentTab = document.querySelector('.tab-btn.active').dataset.tab;
+
+            if (currentTab === 'chats') {
+                filterChats(e.target.value);
+            }
+            // TODO: Adicionar filtros para outros tabs
+        });
+    });
+
+    // Abrir seções de configuração
+    function openSettingsSection(section) {
+        console.log('[SETTINGS] Abrindo seção:', section);
+
+        switch(section) {
+            case 'geral':
+                alert('Configurações gerais - em breve!');
+                break;
+            case 'aparencia':
+                // Mostrar modal de tema (já existe)
+                showThemeModal();
+                break;
+            case 'relays':
+                showRelaysModal();
+                break;
+            case 'traducao':
+                alert('Tradução - em andamento');
+                break;
+            case 'carteira':
+                showWalletModal();
+                break;
+            case 'publicacao':
+                showMediaModal();
+                break;
+            case 'emoji':
+                alert('Pacotes de emoji - projeto futuro');
+                break;
+            case 'chave':
+                showPrivateKeyModal();
+                break;
+            case 'ajuda':
+                showHelpModal();
+                break;
+            case 'apoie':
+                showSupportModal();
+                break;
+        }
+    }
+
+    function showThemeModal() {
+        alert('Use os botões de tema na seção Aparência acima');
+    }
+
+    function showRelaysModal() {
+        alert('Relays:\n\nPadrão: relay.libernet.app\n\nEm breve você poderá adicionar mais relays personalizados.');
+    }
+
+    function showWalletModal() {
+        const wallets = `Carteiras Lightning recomendadas:
+
+• Alby (alby.com)
+• Wallet of Satoshi
+• BlueWallet
+• Phoenix
+• Zeus
+• Breez
+
+Configure sua carteira e retorne aqui para conectar via NWC (Nostr Wallet Connect).`;
+
+        alert(wallets);
+    }
+
+    function showMediaModal() {
+        alert('Publicação de Mídia:\n\nServidor padrão: media.libernet.app\n\nEm breve você poderá configurar outros servidores.');
+    }
+
+    function showPrivateKeyModal() {
+        const npub = '{{ npub }}';
+
+        // Avisar sobre segurança
+        const confirmCopy = confirm('⚠️ ATENÇÃO!\n\nSua chave privada (nsec) dá acesso total à sua conta.\n\nNUNCA compartilhe com ninguém!\n\nDeseja continuar?');
+
+        if (!confirmCopy) return;
+
+        alert('Por segurança, não armazenamos sua nsec.\n\nVocê usou ela para fazer login.\n\nGuarde-a em local seguro!\n\nNpub (pública):\n' + npub);
+    }
+
+    function showHelpModal() {
+        const help = `AJUDA - LIBERCHAT
+
+PERGUNTAS FREQUENTES:
+
+Q: Como adicionar contatos?
+A: Toque no botão + e selecione "Novo contato"
+
+Q: Como criar grupos?
+A: Toque no botão + e selecione "Novo grupo"
+
+Q: O que é NIP-05?
+A: É seu identificador único @libernet.app
+
+Q: Como receber pagamentos?
+A: Configure sua carteira Lightning nas configurações
+
+Q: Preciso de ajuda!
+A: Entre em contato conosco via:
+   - Sofia (IA): @sofia (em breve)
+   - Email: suporte@libernet.app`;
+
+        alert(help);
+    }
+
+    function showSupportModal() {
+        const support = `APOIE O LIBERCHAT
+
+O LiberChat é um projeto livre e descentralizado.
+
+Ajude-nos a manter o projeto:
+
+💰 Lightning Address:
+   barak@blink.sv
+
+⚡ Zap para:
+   npub1nvcezhw3gze5waxtvrzzls8qzhvqpn087hj0s2jl948zr4egq0jqhm3mrr
+
+🔗 libernet.app/apoie
+
+Obrigado pelo apoio! 🙏`;
+
+        alert(support);
+    }
+
+    // Fechar modal ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'modalAddMenu') {
+            closeModal('modalAddMenu');
+        }
+        if (e.target.id === 'modalCreateGroup') {
+            closeModal('modalCreateGroup');
+        }
+    });
+
+// Toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Aplicar tema
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+</script>
+</body>
+</html>

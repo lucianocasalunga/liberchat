@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aparência - LiberChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/wallpaper.js') }}"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Wrapper centralizado para desktop -->
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 min-h-screen">
+    <!-- Header com volta -->
+    <div class="sticky top-0 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <img src="/static/icons/arrow-left.svg" alt="Voltar" class="w-6 h-6 dark:invert">
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="/static/icons/palette.svg" class="w-6 h-6 dark:invert" alt="">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="appearance.title">Aparência</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="px-4 py-6 pb-24 space-y-6">
+
+            <!-- Seção: Tema -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/sun.svg" class="w-5 h-5 dark:invert" alt="">
+                        <span data-i18n="appearance.theme">Tema</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="appearance.theme_subtitle">
+                        Escolha entre claro, escuro ou automático
+                    </p>
+                </div>
+
+                <div class="p-4">
+                    <div class="grid grid-cols-3 gap-3">
+                        <!-- Tema Claro -->
+                        <button
+                            onclick="setTheme('light')"
+                            id="themeLight"
+                            class="theme-option flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all"
+                        >
+                            <div class="w-12 h-12 rounded-lg bg-white border-2 border-gray-300 flex items-center justify-center">
+                                <img src="/static/icons/sun.svg" class="w-6 h-6" alt="">
+                            </div>
+                            <span class="text-sm font-medium" data-i18n="appearance.theme_light">Claro</span>
+                        </button>
+
+                        <!-- Tema Escuro -->
+                        <button
+                            onclick="setTheme('dark')"
+                            id="themeDark"
+                            class="theme-option flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all"
+                        >
+                            <div class="w-12 h-12 rounded-lg bg-gray-900 border-2 border-gray-700 flex items-center justify-center">
+                                <img src="/static/icons/moon.svg" class="w-6 h-6 brightness-0 invert" alt="">
+                            </div>
+                            <span class="text-sm font-medium" data-i18n="appearance.theme_dark">Escuro</span>
+                        </button>
+
+                        <!-- Tema Auto -->
+                        <button
+                            onclick="setTheme('auto')"
+                            id="themeAuto"
+                            class="theme-option flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all"
+                        >
+                            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-white to-gray-900 border-2 border-gray-400 flex items-center justify-center">
+                                <img src="/static/icons/smartphone.svg" class="w-6 h-6" alt="">
+                            </div>
+                            <span class="text-sm font-medium" data-i18n="appearance.theme_auto">Auto</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-3 px-1">
+                        <img src="/static/icons/info.svg" class="w-3.5 h-3.5 dark:invert opacity-70" alt="">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            "Auto" segue o tema do sistema operacional
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Papel de Parede -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white">
+                        <img src="/static/icons/image.svg" class="w-5 h-5 dark:invert" alt="">
+                        Papel de Parede das Conversas
+                    </h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Personalize o fundo dos chats
+                    </p>
+                </div>
+
+                <!-- Preview do wallpaper selecionado -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-900">
+                    <div class="relative rounded-lg overflow-hidden" style="height: 200px;">
+                        <div id="wallpaperPreview" class="absolute inset-0 wallpaper-default">
+                            <!-- Simulação de mensagens -->
+                            <div class="absolute inset-0 flex flex-col justify-end p-4 gap-2">
+                                <!-- Mensagem recebida -->
+                                <div class="flex justify-start">
+                                    <div class="bg-white dark:bg-gray-800 rounded-2xl rounded-bl-md px-3 py-2 max-w-[70%] shadow-sm">
+                                        <p class="text-sm text-gray-900 dark:text-white">Olá! Como você está?</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">14:30</p>
+                                    </div>
+                                </div>
+                                <!-- Mensagem enviada -->
+                                <div class="flex justify-end">
+                                    <div class="bg-yellow-500 rounded-2xl rounded-br-md px-3 py-2 max-w-[70%] shadow-sm">
+                                        <p class="text-sm text-gray-900 dark:text-white">Tudo bem! E você?</p>
+                                        <p class="text-xs text-black/70 mt-1">14:31</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+                        Preview ao vivo
+                    </p>
+                </div>
+
+                <!-- Galeria de wallpapers -->
+                <div class="p-4">
+                    <div class="grid grid-cols-3 gap-3">
+                        <!-- Padrão -->
+                        <button
+                            onclick="setWallpaper('default')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-default"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Padrão</span>
+                            </div>
+                        </button>
+
+                        <!-- Degradê Rosa -->
+                        <button
+                            onclick="setWallpaper('gradient-pink')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-gradient-pink"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Rosa</span>
+                            </div>
+                        </button>
+
+                        <!-- Degradê Azul -->
+                        <button
+                            onclick="setWallpaper('gradient-blue')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-gradient-blue"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Azul</span>
+                            </div>
+                        </button>
+
+                        <!-- Degradê Roxo -->
+                        <button
+                            onclick="setWallpaper('gradient-purple')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-gradient-purple"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Roxo</span>
+                            </div>
+                        </button>
+
+                        <!-- Degradê Verde -->
+                        <button
+                            onclick="setWallpaper('gradient-green')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-gradient-green"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Verde</span>
+                            </div>
+                        </button>
+
+                        <!-- Degradê Laranja -->
+                        <button
+                            onclick="setWallpaper('gradient-orange')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-gradient-orange"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Laranja</span>
+                            </div>
+                        </button>
+
+                        <!-- Geométrico (estilo Telegram) -->
+                        <button
+                            onclick="setWallpaper('geometric')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-geometric"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Padrão</span>
+                            </div>
+                        </button>
+
+                        <!-- Escuro Sutil -->
+                        <button
+                            onclick="setWallpaper('dark-subtle')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-dark-subtle"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-white/20">
+                                <span class="text-xs font-medium text-white drop-shadow">Escuro</span>
+                            </div>
+                        </button>
+
+                        <!-- Minimalista Claro -->
+                        <button
+                            onclick="setWallpaper('minimal-light')"
+                            class="wallpaper-option aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-500 transition-all relative"
+                        >
+                            <div class="absolute inset-0 wallpaper-minimal-light"></div>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <span class="text-xs font-medium text-gray-700 drop-shadow">Claro</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-3 px-1">
+                        <img src="/static/icons/lightbulb.svg" class="w-3.5 h-3.5 dark:invert opacity-70" alt="">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Dica: Os wallpapers se adaptam automaticamente ao tamanho da tela
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-center" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="max-w-3xl w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-around h-[52px]">
+        <!-- Chats -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/message-circle.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.chats">Chats</span>
+        </button>
+
+        <!-- Grupos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users-round.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.groups">Grupos</span>
+        </button>
+
+        <!-- Contatos -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/users.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.contacts">Contatos</span>
+        </button>
+
+        <!-- Configurações -->
+        <button
+            onclick="window.location.href='/chat'"
+            class="flex-1 flex flex-col items-center justify-center gap-0 h-full transition-colors text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+        >
+            <img src="/static/icons/settings.svg" class="w-5 h-5 dark:invert mb-0.5" alt="">
+            <span class="text-[9px] font-medium leading-none" data-i18n="nav.settings">Config</span>
+        </button>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Botões ativos da navegação */
+.tab-btn.active {
+    color: #FFC107;
+}
+
+.tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+
+html.dark .tab-btn.active img {
+    filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(487%) hue-rotate(359deg) brightness(103%) contrast(101%);
+}
+
+/* Tema selecionado */
+.theme-option.selected {
+    border-color: #FFC107 !important;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* Wallpaper selecionado */
+.wallpaper-option.selected {
+    border-color: #FFC107 !important;
+}
+
+/* ========== WALLPAPERS - RESPONSIVOS ========== */
+
+/* Padrão (cinza claro) */
+.wallpaper-default {
+    background: #f5f5f5;
+}
+
+html.dark .wallpaper-default {
+    background: #1a1a1a;
+}
+
+/* Degradê Rosa */
+.wallpaper-gradient-pink {
+    background: linear-gradient(135deg, #ffeef8 0%, #ffe0f0 50%, #ffd4eb 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-gradient-pink {
+    background: linear-gradient(135deg, #2d1a25 0%, #3d1f2f 50%, #4d2438 100%);
+}
+
+/* Degradê Azul */
+.wallpaper-gradient-blue {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-gradient-blue {
+    background: linear-gradient(135deg, #1a2332 0%, #1f2d42 50%, #243751 100%);
+}
+
+/* Degradê Roxo */
+.wallpaper-gradient-purple {
+    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-gradient-purple {
+    background: linear-gradient(135deg, #261a2d 0%, #341f3d 50%, #42244d 100%);
+}
+
+/* Degradê Verde */
+.wallpaper-gradient-green {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-gradient-green {
+    background: linear-gradient(135deg, #1a2d1a 0%, #1f3d1f 50%, #244d24 100%);
+}
+
+/* Degradê Laranja */
+.wallpaper-gradient-orange {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-gradient-orange {
+    background: linear-gradient(135deg, #2d2519 0%, #3d2f1f 50%, #4d3a24 100%);
+}
+
+/* Geométrico (estilo Telegram) */
+.wallpaper-geometric {
+    background-color: #e8eaf6;
+    background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(99, 99, 99, 0.05) 35px, rgba(99, 99, 99, 0.05) 70px),
+        repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(99, 99, 99, 0.05) 35px, rgba(99, 99, 99, 0.05) 70px);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-geometric {
+    background-color: #1e1e2e;
+    background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 255, 255, 0.03) 35px, rgba(255, 255, 255, 0.03) 70px),
+        repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255, 255, 255, 0.03) 35px, rgba(255, 255, 255, 0.03) 70px);
+}
+
+/* Escuro Sutil */
+.wallpaper-dark-subtle {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1f1f1f 50%, #121212 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-dark-subtle {
+    background: linear-gradient(135deg, #0a0a0a 0%, #050505 50%, #000000 100%);
+}
+
+/* Minimalista Claro */
+.wallpaper-minimal-light {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f5f5f5 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+html.dark .wallpaper-minimal-light {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    [class*="wallpaper-"] {
+        background-attachment: scroll;
+    }
+}
+
+@media (min-width: 769px) {
+    [class*="wallpaper-"] {
+        background-attachment: fixed;
+    }
+}
+</style>
+
+<script>
+// Carregar configurações salvas
+document.addEventListener('DOMContentLoaded', () => {
+    loadTheme();
+    loadWallpaper();
+});
+
+// ========== TEMA ==========
+
+function loadTheme() {
+    const theme = localStorage.getItem('liberchat_theme') || 'auto';
+    updateThemeUI(theme);
+}
+
+function setTheme(theme) {
+    localStorage.setItem('liberchat_theme', theme);
+    updateThemeUI(theme);
+    applyTheme(theme);
+    alert('✓ Tema alterado para: ' + (theme === 'light' ? 'Claro' : theme === 'dark' ? 'Escuro' : 'Automático'));
+}
+
+function updateThemeUI(theme) {
+    // Remover selected de todos
+    document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+
+    // Adicionar selected ao atual
+    const themeMap = {
+        'light': 'themeLight',
+        'dark': 'themeDark',
+        'auto': 'themeAuto'
+    };
+
+    const selectedBtn = document.getElementById(themeMap[theme]);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+}
+
+function applyTheme(themeSetting) {
+    let actualTheme = themeSetting;
+
+    if (themeSetting === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    if (actualTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+
+// ========== WALLPAPER ==========
+
+function loadWallpaper() {
+    const wallpaper = localStorage.getItem('liberchat_wallpaper') || 'default';
+    updateWallpaperUI(wallpaper);
+}
+
+function setWallpaper(wallpaper) {
+    localStorage.setItem('liberchat_wallpaper', wallpaper);
+    updateWallpaperUI(wallpaper);
+
+    // Dispara evento para o wallpaper.js global aplicar a mudança
+    window.dispatchEvent(new Event('wallpaperChanged'));
+
+    alert('✓ Papel de parede alterado!\n\nAs conversas agora usarão este fundo.');
+}
+
+function updateWallpaperUI(wallpaper) {
+    // Atualizar preview
+    const preview = document.getElementById('wallpaperPreview');
+    preview.className = `absolute inset-0 wallpaper-${wallpaper}`;
+
+    // Remover selected de todos
+    document.querySelectorAll('.wallpaper-option').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+
+    // Adicionar selected ao atual
+    const buttons = document.querySelectorAll('.wallpaper-option');
+    buttons.forEach((btn, index) => {
+        const wallpaperNames = ['default', 'gradient-pink', 'gradient-blue', 'gradient-purple', 'gradient-green', 'gradient-orange', 'geometric', 'dark-subtle', 'minimal-light'];
+        if (wallpaperNames[index] === wallpaper) {
+            btn.classList.add('selected');
+        }
+    });
+}
+
+// Aplicar tema inicial
+applyTheme(localStorage.getItem('liberchat_theme') || 'auto');
+// Atualizar página quando idioma mudar
+window.addEventListener('languageChanged', () => {
+    setTimeout(() => window.location.reload(), 500);
+});
+</script>
+</div> <!-- Fecha wrapper centralizado -->
+</body>
+</html>
