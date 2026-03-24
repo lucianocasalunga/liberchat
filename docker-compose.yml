@@ -35,7 +35,7 @@ services:
       - POSTGRES_USER=liberchat
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /mnt/storage/docker-volumes/liberchat:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - liberchat_network
@@ -50,7 +50,6 @@ services:
       - liberchat_network
 
 volumes:
-  postgres_data:
   redis_data:
 
 networks:

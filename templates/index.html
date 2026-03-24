@@ -90,8 +90,9 @@
         }
 
         try {
+            console.log('DEBUG [NOS2X]: Solicitando pubkey da extensão...');
             const pubkey = await window.nostr.getPublicKey();
-            console.log('Pubkey obtida:', pubkey);
+            console.log('DEBUG [NOS2X]: Pubkey obtida:', pubkey);
 
             // Enviar pubkey para backend e criar sessão
             const response = await fetch('/api/auth/nostr', {
@@ -101,23 +102,35 @@
                 credentials: 'include'  // Necessário para Safari aceitar cookies
             });
 
+            console.log('DEBUG [NOS2X]: Response status:', response.status);
             const data = await response.json();
+            console.log('DEBUG [NOS2X]: Response data:', data);
+
             if (data.success) {
-                console.log('Login realizado:', data.npub);
-                window.location.href = '/chat';
+                console.log('✅ [NOS2X] Login realizado:', data.npub);
+
+                // Pequeno delay para garantir que o cookie foi setado
+                setTimeout(() => {
+                    console.log('DEBUG [NOS2X]: Redirecionando para /chat...');
+                    window.location.href = '/chat';
+                }, 100);
             } else {
+                console.error('❌ [NOS2X] Erro de autenticação:', data.error);
                 alert('Erro: ' + (data.error || 'Falha na autenticação'));
             }
         } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            alert('Erro ao conectar com extensão Nostr');
+            console.error('❌ [NOS2X] Erro ao fazer login:', error);
+            alert('Erro ao conectar com extensão Nostr: ' + error.message);
         }
     });
 
     // Login com nsec
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nsec = document.getElementById('nsec').value;
+        const nsec = document.getElementById('nsec').value.trim();
+
+        console.log('DEBUG: nsec fornecida:', nsec);
+        console.log('DEBUG: começa com nsec1?', nsec.startsWith('nsec1'));
 
         if (!nsec.startsWith('nsec1')) {
             alert('Chave inválida! Deve começar com nsec1');
@@ -125,6 +138,8 @@
         }
 
         try {
+            console.log('DEBUG [NSEC]: Enviando nsec para autenticação...');
+
             const response = await fetch('/api/auth/nostr', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -132,16 +147,27 @@
                 credentials: 'include'  // Necessário para Safari aceitar cookies
             });
 
+            console.log('DEBUG [NSEC]: Response status:', response.status);
+            console.log('DEBUG [NSEC]: Set-Cookie header:', response.headers.get('set-cookie'));
+
             const data = await response.json();
+            console.log('DEBUG [NSEC]: Response data:', data);
+
             if (data.success) {
-                console.log('Login realizado:', data.npub);
-                window.location.href = '/chat';
+                console.log('✅ [NSEC] Login realizado:', data.npub);
+
+                // Pequeno delay para garantir que o cookie foi setado
+                setTimeout(() => {
+                    console.log('DEBUG [NSEC]: Redirecionando para /chat...');
+                    window.location.href = '/chat';
+                }, 100);
             } else {
+                console.error('❌ [NSEC] Erro de autenticação:', data.error);
                 alert('Erro: ' + (data.error || 'Falha na autenticação'));
             }
         } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            alert('Erro ao fazer login');
+            console.error('❌ [NSEC] Erro ao fazer login:', error);
+            alert('Erro ao fazer login: ' + error.message);
         }
     });
 </script>
