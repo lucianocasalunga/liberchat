@@ -1,11 +1,13 @@
 <div align="center">
 
+> ⚠️ **PROJETO DESCONTINUADO** — O LiberChat foi substituído pelo mensageiro integrado ao [LiberMedia](https://media.libernet.app). Este repositório é mantido apenas como referência histórica.
+
 # 💬 LiberChat
 
 **Cliente de Chat Nostr Descentralizado**
 *Conversas privadas, seguras e livres*
 
-[![Status](https://img.shields.io/badge/status-active-success?style=for-the-badge)](https://chat.libernet.app)
+[![Status](https://img.shields.io/badge/status-descontinuado-inactive?style=for-the-badge)](https://media.libernet.app)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Nostr](https://img.shields.io/badge/nostr-100%25-8B5CF6?style=for-the-badge&logo=nostr&logoColor=white)](https://nostr.com)
